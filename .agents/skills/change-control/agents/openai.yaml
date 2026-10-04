@@ -1,0 +1,4 @@
+interface:
+  display_name: "Change Control"
+  short_description: "Run the change control workflow"
+  default_prompt: "Use $change-control to complete the applicable project workflow."

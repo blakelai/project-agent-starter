@@ -1,0 +1,4 @@
+interface:
+  display_name: "Knowledge Bootstrap"
+  short_description: "Run the knowledge bootstrap workflow"
+  default_prompt: "Use $knowledge-bootstrap to complete the applicable project workflow."

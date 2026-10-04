@@ -1,0 +1,25 @@
+---
+name: knowledge-bootstrap
+description: Initialize project knowledge routing from existing OpenWiki repository
+  wikis. Use for new project repositories, adding sources, missing retrieval, or stale
+  source evidence.
+---
+
+# Knowledge Bootstrap
+
+
+1. Read config/project.yaml, knowledge/sources.yaml and docs/data-contract.md.
+2. Confirm project boundary, source owners and required repositories. Keep URLs and logical IDs in
+   the shared manifest; map checkouts in ignored .local/sources.yaml using config/local-sources.template.yaml.
+3. Inspect existing OpenWiki entry pages and source commits. Reuse repository wikis; do not reinitialize them.
+4. If OpenWiki MCP exists, discover available tools and their schemas; list workspaces/wikis, then search
+   a concrete capability and read selected sections with returned wiki IDs/anchors. If multiple workspaces
+   are ambiguous, resolve scope. Do not assume this Project Repository belongs to a workspace automatically.
+5. Otherwise resolve checkout paths and use rg on selected wiki/source directories. Record fallback mode.
+6. Write knowledge/project-map.md with capability, source ID, entry page, owner and important cross-repo contracts.
+7. Write requirements/<id>/evidence.yaml for task-specific claims. Capture revision, observed_at and state.
+   Check .claims evidence if available; do not equate generated timestamp with verified current source.
+8. Record unknowns and contradictions. Request a targeted wiki refresh in its owning repo when needed.
+9. Validate routing by answering one lifecycle question and one cross-repo consumer question with evidence.
+
+Read docs/openwiki-integration.md for setup commands. The manifest is our adapter, not OpenWiki's API.

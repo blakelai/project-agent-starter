@@ -1,0 +1,4 @@
+interface:
+  display_name: "Assessment Review"
+  short_description: "Run the assessment review workflow"
+  default_prompt: "Use $assessment-review to complete the applicable project workflow."

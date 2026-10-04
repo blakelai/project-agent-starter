@@ -1,0 +1,4 @@
+interface:
+  display_name: "Risk Analysis"
+  short_description: "Run the risk analysis workflow"
+  default_prompt: "Use $risk-analysis to complete the applicable project workflow."

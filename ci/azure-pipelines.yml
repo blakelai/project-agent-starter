@@ -1,0 +1,24 @@
+# Copy to the Azure DevOps pipeline path required by your organization.
+# This validates artifacts and tools; it does not call an LLM or update OpenWiki.
+trigger:
+  branches:
+    include:
+      - main
+pr:
+  branches:
+    include:
+      - main
+pool:
+  vmImage: ubuntu-latest
+steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.11'
+  - script: python -m pip install -r requirements.txt
+    displayName: Install validation dependency
+  - script: python scripts/validate.py --all
+    displayName: Validate artifacts
+  - script: python -m unittest discover -s tests -v
+    displayName: Verify calculation tools
+# For Azure Repos Git, PR validation is configured as a build-validation branch policy;
+# YAML pr triggers do not replace that policy. Adapt hosted/self-hosted pool as required.

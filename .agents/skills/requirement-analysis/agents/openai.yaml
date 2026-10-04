@@ -1,0 +1,4 @@
+interface:
+  display_name: "Requirement Analysis"
+  short_description: "Run the requirement analysis workflow"
+  default_prompt: "Use $requirement-analysis to complete the applicable project workflow."

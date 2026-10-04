@@ -1,0 +1,4 @@
+interface:
+  display_name: "Impact Analysis"
+  short_description: "Run the impact analysis workflow"
+  default_prompt: "Use $impact-analysis to complete the applicable project workflow."

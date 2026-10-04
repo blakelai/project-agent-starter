@@ -1,0 +1,4 @@
+interface:
+  display_name: "Backlog Handoff"
+  short_description: "Run the backlog handoff workflow"
+  default_prompt: "Use $backlog-handoff to complete the applicable project workflow."

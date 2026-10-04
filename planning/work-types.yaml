@@ -1,0 +1,28 @@
+schema_version: 1
+work_types:
+  domain-model-change:
+    description: domain model change
+  external-integration:
+    description: external integration
+  event-integration:
+    description: event integration
+  observability:
+    description: observability
+  integration-test:
+    description: integration test
+  rollout:
+    description: rollout
+  backend-api:
+    description: backend api
+  event-contract:
+    description: event contract
+  schema-change:
+    description: schema change
+  migration:
+    description: migration
+  frontend:
+    description: frontend
+  security-review:
+    description: security review
+  documentation:
+    description: documentation
