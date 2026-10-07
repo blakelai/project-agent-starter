@@ -1,6 +1,6 @@
 # OpenWiki Project Agent Starter
 
-用既有 Repository Wiki、13 個 Repository-local Skills 與可重算的排程工具，管理需求評估和交付。
+用既有 Repository Wiki、9 個 Repository-local Skills 與可重算的排程工具，管理需求評估和交付。
 所有日常專案內容集中在 **[vault/index.md](vault/index.md)**，採用 **OKF v0.2 Markdown**。
 在 Obsidian 選 **Open folder as vault**，開啟 Repository 的 `vault/`，再開啟 `index.md`。
 也可使用其他 Markdown 編輯器或 GitHub 閱讀。骨架保留空白資料與模板，沒有填入範例專案。
@@ -34,24 +34,39 @@ python -m unittest discover -s tests -v
 
 未設定的欄位以 null 或空集合保留。資料驗證允許尚未初始化的 intake，排程驗證會阻擋缺少必要資料的需求。
 
-## 初始化專案
+## 初始化與專案管理
 
-1. 設定 [專案設定](vault/config/project.md) 的 project ID、名稱、owner 與 Wiki 路由。
-2. 填寫 [來源登錄](vault/knowledge/sources.md)，連結已有 OpenWiki 的 Source Repository。
-3. 從 `vault/config/local-sources.template.md` 建立 `.local/sources.md`，映射本機 checkout。
-4. 填寫 [規劃資料](vault/planning/index.md) 的真實人員、技能、淨容量、有效期限、日曆與歷史資料。
-5. 設定 OpenWiki workspace / host integration，或使用 filesystem retrieval。
-6. 用 `python scripts/init_requirement.py <REQ-ID>` 建立需求 intake。
-7. 讓 Agent 讀取 AGENTS.md，依相關 Skills 完成分析與 readiness review。
-8. 問題解決、資料確認後執行排程：
+完整的 [專案管理工作流程](vault/docs/project-workflow.md) 包含流程圖、14 個步驟的 Skill／指令／完成條件，
+以及術語釐清、基準、預測與驗收操作。詳細欄位見 [規劃與交付契約](vault/docs/planning-and-delivery.md)。
+
+1. 設定 [專案設定](vault/config/project.md)、[來源登錄](vault/knowledge/sources.md) 和本機 `.local/sources.md`。
+2. 填寫 [規劃資料](vault/planning/index.md) 的真實人員、技能、淨容量、有效期限與日曆；接上既有 OpenWiki。
+3. 建立 project.md，填寫目標、成功標準、owner，以及一起排程的 REQ 與優先序。
+4. 建立需求 intake，分析原文、領域詞彙、FR 與 AC；通過需求關卡後再補上規劃文件。
+5. 依 Skills 完成拆工、估算與審查，通過 readiness 後跨需求共用容量排程。
 
 ```bash
+python scripts/init_project.py <PROJ-ID>
+python scripts/init_requirement.py <REQ-ID>
+python scripts/validate.py --requirement <REQ-ID> --stage requirements
+python scripts/workflow.py --requirement <REQ-ID> --stage planning
+python scripts/validate.py --requirement <REQ-ID> --stage planning
 python scripts/validate.py --requirement <REQ-ID> --planning
-python scripts/schedule.py --requirement <REQ-ID> --scenario expected
-python scripts/schedule.py --requirement <REQ-ID> --scenario high
+python scripts/schedule_project.py --project <PROJ-ID> --scenario expected
+python scripts/schedule_project.py --project <PROJ-ID> --scenario high
 ```
 
-將 `<REQ-ID>` 換成自己的需求 ID。產物位於 `vault/requirements/<REQ-ID>/`，Obsidian 可直接開啟。
+將 `<...>` 換成實際 ID；各關卡之間需要填寫資料及完成審查，這不是可空跑的批次腳本。
+新需求只建立四份核心頁及 index，後續用 workflow.py 按階段補檔，保留已有內容。
+排程位於 `vault/projects/<PROJ-ID>/`；人類核准後可用 baseline.py 保存不可覆寫的快照。
+
+執行期間以 `delivery-tracking` 記錄同一截止日的進度與明確剩餘工時，再執行：
+
+```bash
+python scripts/schedule_project.py --project <PROJ-ID> --as-of <YYYY-MM-DD> --scenario expected
+```
+
+驗收和結案使用 `--stage closure` 檢查與 close_requirement.py；完整核准／結案命令見工作流程。
 
 ## 文件預設語言
 
@@ -88,4 +103,5 @@ python scripts/init_requirement.py <REQ-ID> --source vault/intake/<BRD-ID>/brd.m
 
 Skills 的自動發現方式由 Agent host 決定；必要時明確指示它讀指定 SKILL.md。
 排程是 full-WBS greedy 可行解：每 WP 一位負責人、每人每天最多一個 WP；支援相依、淨容量、休假與
-not-before gate。沒有最佳化、機率模型、actuals-aware reforecast 或外部 tracker 自動寫入。
+not-before gate。專案工具另外支援同一截止日的剩餘工作預測；沒有最佳化、機率模型或外部 tracker 自動寫入。
+不同 PROJ 的獨立排程不會互相保留容量，共用資源應在同一規劃集合中一起計算。

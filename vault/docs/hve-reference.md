@@ -15,11 +15,11 @@ HVE is an SDLC pattern source; it does not supply this starter's effort/capacity
 | requirements-author | Skill | Structured BRD/PRD, traceability, lifecycle gates | requirement-analysis and traceability |
 | EARS acceptance reference | Skill reference | Trigger/state/outcome wording | Observable AC with failure behavior |
 | BRD-to-PRD handoff reference | Skill reference / contract | Durable, validated handoff payload | assessment readiness and backlog handoff |
-| functional-planner | Skill + consuming Agent | Read-only PRD-to-backlog hierarchy | work-breakdown and backlog-handoff |
+| functional-planner | Skill + consuming Agent | Read-only PRD-to-backlog hierarchy | delivery-planning and delivery-tracking |
 | backlog-management / backlog-manager | Skill / Agent | Platform-specific execution boundary | Separate draft planning from authorized tracker mutation |
 | rpi-research / rpi-plan / rpi-review | Skills | Reuse adequate evidence; plan and review artifacts | evidence readiness and assessment-review |
-| adr-creation | Agent | Decision documentation | architecture-review and decisions.md |
-| system-architecture-reviewer | Agent | Scoped tradeoff review | architecture-review |
+| adr-creation | Agent | Decision documentation | solution-assessment and ADRs |
+| system-architecture-reviewer | Agent | Scoped tradeoff review | solution-assessment |
 | hve-builder | Skill | Maintain instruction/agent/skill artifacts | Future local skill evolution |
 
 Official entry points:

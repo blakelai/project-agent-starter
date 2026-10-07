@@ -34,6 +34,9 @@ by Wiki/code are evidence to discuss, not human approval. Keep independent analy
 7. Keep useful analysis moving while scope is blocked. Do not silently select synchronous/asynchronous
    behavior or failure semantics. Do not enter detailed solution design at this step.
 8. Mark clarified only after scope and AC are sufficiently bounded; leave blocking questions visible.
+   Run validate.py --requirement <REQ-ID> --stage requirements. This phase needs no WBS or estimates.
+   Questions may specify blocks: [requirements|planning|delivery|closure]; legacy blockers apply from
+   requirements onward. Do not defer uncertain business meanings to a later stage to bypass clarification.
 9. Account for every BRD item in traceability.md source_coverage and reconcile FR mappings in both directions.
    Use analyzed, needs-clarification, deferred or excluded with the required references and reasons. Do not
    silently omit an item. For split REQ scopes, reference the actual allocation decision and target assessment.
@@ -43,8 +46,5 @@ by Wiki/code are evidence to discuss, not human approval. Keep independent analy
 
 Use vault/templates/requirement/ and vault/docs/data-contract.md. Never mark an intake assessed merely because files exist.
 
-## OKF editing contract
-
-Before generating documents, read `documentation_language` from the project-data block in `vault/config/project.md` and apply the Document language policy in `AGENTS.md`. Use the resolved language for human-readable content; preserve machine-readable fields and original evidence.
-
-Read `vault/docs/okf-profile.md`. Edit project knowledge under `vault/` as OKF Markdown. Structured facts live in the single marked YAML block in each Project Data note; preserve its markers, unknown fields, OKF frontmatter and surrounding prose. Update semantic body links when adding relationships. Frontmatter `status` is the knowledge lifecycle; project workflow status remains inside the data block. Commands run from the repository root.
+Read AGENTS.md, vault/docs/okf-profile.md and vault/docs/project-workflow.md before editing.
+Apply the shared language, evidence, authority and file-format rules; do not duplicate or override them here.

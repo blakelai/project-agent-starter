@@ -26,13 +26,19 @@ For original BRDs, read `vault/docs/brd-intake.md`. Keep source text and assets 
 Initialize an assessment with `--source` for each BRD and apply the source-analysis steps below.
 
 1. Use `knowledge-bootstrap` for initial setup, source changes or evidence drift.
-2. Use `domain-terminology` during intake, then `requirement-analysis` and `impact-analysis`.
-3. Use `architecture-review` for new integrations, contract/schema changes or material tradeoffs.
-4. Use `work-breakdown`, `effort-estimation`, `risk-analysis`.
-5. Use `assessment-review` to reconcile outputs and mark readiness.
-6. Use `project-planning` only when no open blocking question remains.
-7. Use `backlog-handoff` to draft work tracker imports; use `progress-reporting` during execution
-   and `change-control` for scope/capacity/baseline changes.
+2. Use `domain-terminology` during `requirement-analysis`; validate the requirements phase before planning.
+3. Use `solution-assessment` for impacts and material design choices; reuse adequate existing solutions.
+4. Use the required substep of `delivery-planning` (WBS, estimates, shared capacity or remaining-work forecast).
+5. Use `risk-analysis` throughout the lifecycle and `assessment-review` at the relevant phase gate.
+6. Use `delivery-tracking` for handoff, observations, acceptance and closure; use `change-control` for changes.
+
+Read `vault/docs/project-workflow.md` for the phase diagram, exact commands and exit conditions.
+Initialize only intake artifacts. Use workflow.py to add later-phase files without overwriting work;
+file creation does not complete a phase. Questions may specify blocks stages and affected_work.
+Use one schedule_project.py run for all REQs sharing the selected capacity pool. Single-REQ schedules
+are isolated scenarios, not independent capacity reservations. Forecast only explicit remaining work
+at a common cutoff; never infer it by subtracting actual effort from an original estimate.
+Record human acceptance separately from test success. Close only after the closure gate passes.
 
 ## Evidence rules
 

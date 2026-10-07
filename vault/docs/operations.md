@@ -26,17 +26,22 @@ Do not restart the whole pipeline when inputs are unchanged. Re-run only invalid
 
 ## Baseline
 
-Draft artifacts require no routine approvals. Establishing a baseline requires the project owner's explicit
-decision; keep approval provenance and exact input/output versions. Existing authorized acceptance suffices.
-Copy approved artifacts and hash manifest under vault/projects/<id>/baseline/<version> and preserve previous versions.
-The starter does not automatically create baselines or change external trackers.
+Use delivery-planning and assessment-review. Run baseline.py preview against the selected project report,
+obtain the owner's decision on that exact revision, then use baseline.py create with its revision and real
+by/at/source metadata. Use baseline.py verify to check the saved bytes. See [commands](project-workflow.md).
+Snapshots under vault/projects/<PROJ-ID>/baseline/<version> cannot be overwritten by the tool; live progress
+can continue changing. The tool records supplied confirmation, not a new approval or external tracker action.
 
 ## Progress and change
 
-Use actual accepted deliverables/test evidence, actual effort and remaining effort range. Unsupported
-percent-complete statements are not facts. Report against immutable baseline; route new scope/capacity or
-invalid assumptions through change-control. Do not rerun the full-WBS scheduler and call it an actuals-aware
-reforecast. V1 requires a separately prepared remaining-work assessment or a documented manual forecast.
+Use delivery-tracking for observed work status, accepted outcomes, actuals and explicit remaining ranges.
+All selected REQs need the same as_of for schedule_project.py --as-of. Forecast from the following day;
+exclude done/cancelled work, retain unknown actuals, and reject unknown remaining work or blocked resume dates.
+The full-WBS single-REQ schedule.py remains an isolated scenario, not a remaining-work forecast.
+
+Compare with the immutable baseline; route invalidated scope, capacity or dependencies through change-control.
+Reuse adequate analysis and rerun only affected phases. Preserve actual observations and old approval evidence.
+Inputs and closure conditions are defined in [planning and delivery](planning-and-delivery.md).
 
 ## CI adoption
 
@@ -46,7 +51,10 @@ Agent judgement and owner review remain necessary; lint success is not business 
 
 ## Closure
 
-Record accepted AC, actual scope/effort measurement method, elapsed duration, major scope changes and lessons.
+Run validate.py --stage closure, then close_requirement.py. All work must be done or explicitly cancelled;
+each AC needs passed tests and human acceptance, or a reasoned human waiver. Resolve delivery blockers and
+record the human closure decision with by/at/source/summary. Record actual scope/effort measurement method,
+elapsed duration, major scope changes and lessons.
 Convert only measured comparable outcomes into historical-delivery records. Do not use ticket elapsed duration
 as effort, story points as PD, or synthetic fixtures as history. Refresh changed source wikis in their owners' workflow.
 

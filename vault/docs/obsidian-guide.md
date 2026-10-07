@@ -38,11 +38,12 @@ Obsidian 原生 Properties 不支援巢狀資料，因此複雜資料放在正�
 
 1. 依 [初始化指南](initialization-guide.zh-TW.md) 填寫自己的設定與已確認事實。
 2. 在 Repository 根目錄執行 `python scripts/init_requirement.py <REQ-ID>`，以實際 ID 取代尖括號。
-3. 開啟 `requirements/<REQ-ID>/index.md`，編輯同目錄的 requirement、evidence、impact 等頁面。
+3. 開啟 `requirements/<REQ-ID>/index.md`，先編輯 requirement、evidence、assessment、traceability 四份核心頁。
 4. Agent 在 Repository 根目錄工作，讀取 `AGENTS.md` 與 [Skill 目錄](skill-catalog.md) 的適用流程。
 5. 修改後執行 `python scripts/validate.py --all`，再確認 git diff 並提交。
 
-初始化工具會建立 OKF 頁面並更新需求導覽。一般知識頁可複製 [概念模板](../templates/concept.md)，
+初始化工具會建立四份核心頁及 index；後續用 workflow.py 的 solution、planning、delivery 按需補檔，不覆寫已有內容。
+階段流程圖及完整命令見 [專案工作流程](project-workflow.md)。一般知識頁可複製 [概念模板](../templates/concept.md)，
 修改 metadata 與正文，再把連結加入相關頁與索引。新頁面也需要有效的 OKF metadata。
 
 ## 查看排程
@@ -51,11 +52,13 @@ Obsidian 原生 Properties 不支援巢狀資料，因此複雜資料放在正�
 
 ```bash
 python scripts/validate.py --requirement <REQ-ID> --planning
-python scripts/schedule.py --requirement <REQ-ID> --scenario expected
-python scripts/schedule.py --requirement <REQ-ID> --scenario high
+python scripts/schedule_project.py --project <PROJ-ID> --scenario expected
+python scripts/schedule_project.py --project <PROJ-ID> --scenario high
 ```
 
-在需求資料夾開啟產生的 `schedule-expected.md` 與 `schedule-high.md`，閱讀時間表和逐日分配。
+先以 init_project.py 建立 project.md，選入所有共用容量的 REQ。
+在專案資料夾開啟產生的 `schedule-expected.md` 與 `schedule-high.md`，閱讀時間表和逐日分配。
+進度更新後可加 `--as-of <YYYY-MM-DD>` 產生獨立的 forecast 報表；原基準保留在 baseline 版本資料夾。
 重算更新產物本文；人為評估寫入 `project-plan.md`。兩個情境不是統計百分位或交付承諾。
 
 ## 舊版本轉換

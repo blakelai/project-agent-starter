@@ -1,9 +1,3 @@
----
-name: backlog-handoff
-description: Draft work tracker hierarchies and handoff contracts from project assessments.
-  Use to prepare Azure DevOps, Jira or GitHub backlog plans without mutating the tracker.
----
-
 # Backlog Handoff
 
 
@@ -17,9 +11,3 @@ description: Draft work tracker hierarchies and handoff contracts from project a
 5. Keep development implementation plans separate from resource-constrained project schedules.
 6. If the user explicitly requests tracker mutation, route to the relevant connected capability with verified
    recipients/project and exact reviewable payload. This repository ships no ADO/Jira/GitHub connector.
-
-## OKF editing contract
-
-Before generating documents, read `documentation_language` from the project-data block in `vault/config/project.md` and apply the Document language policy in `AGENTS.md`. Use the resolved language for human-readable content; preserve machine-readable fields and original evidence.
-
-Read `vault/docs/okf-profile.md`. Edit project knowledge under `vault/` as OKF Markdown. Structured facts live in the single marked YAML block in each Project Data note; preserve its markers, unknown fields, OKF frontmatter and surrounding prose. Update semantic body links when adding relationships. Frontmatter `status` is the knowledge lifecycle; project workflow status remains inside the data block. Commands run from the repository root.

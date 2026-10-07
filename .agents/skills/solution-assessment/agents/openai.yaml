@@ -1,0 +1,4 @@
+interface:
+  display_name: "方案與影響評估"
+  short_description: "釐清系統影響、比較可行方案並記錄必要架構決策與來源證據"
+  default_prompt: "Use $solution-assessment to handle the current project phase using verified inputs and the project workflow."

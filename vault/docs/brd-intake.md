@@ -82,9 +82,9 @@ python scripts/init_requirement.py <REQ-ID> --source vault/intake/<BRD-ID>/brd.m
 
 | disposition | 必要內容／排程條件 |
 |---|---|
-| pending | 尚待分析；阻擋 planning readiness |
+| pending | 尚待分析；阻擋 requirements 及後續關卡 |
 | analyzed | 至少一個 FR；與該 FR 的 `source_refs` 雙向一致 |
-| needs-clarification | 指向存在的 question；阻擋 planning readiness |
+| needs-clarification | 指向存在的 question；阻擋 requirements 及後續關卡 |
 | deferred | 說明延後原因，無本次 FR 對應；排程前需有 `decision_ref` |
 | excluded | 說明不納入本次 REQ 的原因，無本次 FR 對應；排程前需有 `decision_ref` |
 
@@ -118,7 +118,8 @@ refresh 只處理草案：重新擷取已變更文件、將其條目改回 pendi
 未變更來源保持原快照，重複 refresh 不會抹除未受影響的判讀紀錄。
 baseline 或 closed 的需求會拒絕 refresh，應先經 change-control 建立新的變更評估。
 
-完成分析後執行 `python scripts/validate.py --requirement <REQ-ID> --planning`。
+完成需求分析後先執行 `python scripts/validate.py --requirement <REQ-ID> --stage requirements`，
+此時不要求 WBS 或估算；規劃資料及 review 完成後再執行 `--planning`。見 [完整工作流程](project-workflow.md)。
 原始條目未處理、圖像未判讀、來源過期或引用不一致時不能排程。排程輸出另保存 BRD 與圖片輸入 hashes。
 
 [原始需求目錄](../intake/index.md) · [資料契約](data-contract.md) · [文件目錄](index.md)

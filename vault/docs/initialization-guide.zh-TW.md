@@ -8,7 +8,7 @@ status: draft
 # 以既有 OpenWiki 初始化 Project Repository
 
 本指南說明如何用已有的 Repository Wiki，建立獨立的需求評估與專案管理 Repository。
-骨架包含 13 個 Repository-local Skills、空白資料模板，以及可重算的驗證／排程工具。
+骨架包含 9 個 Repository-local Skills、空白資料模板，以及可重算的驗證／排程工具。
 專案內容位於 OKF `vault/`，可直接用 Obsidian 開啟；先讀 [Obsidian 操作](obsidian-guide.md) 與
 [OKF 規約](okf-profile.md)。本文 CLI 命令均從 Repository 根目錄執行。
 
@@ -95,50 +95,43 @@ measurement source。Ticket elapsed duration 或 story points 不等於 actual e
 
 ## 7. Skills 與需求流程
 
-| Skill | 主要責任 |
-|---|---|
-| knowledge-bootstrap | 來源 routing、檢索驗證、freshness |
-| requirement-analysis | Goal、actors、scope、constraints、AC、questions |
-| impact-analysis | Domain / API / Event / Schema / consumers / operations |
-| architecture-review | 有範圍的 alternatives、tradeoffs、decisions / ADR |
-| work-breakdown | Deliverables、done_when、dependencies、skills、traceability |
-| effort-estimation | 可稽核的 low / expected / high PD 與依據 |
-| risk-analysis | Risk owner、trigger、mitigation、treatment |
-| assessment-review | 跨檔一致性、證據和 planning readiness |
-| project-planning | Resource-constrained scenario schedule 與草案 |
-| backlog-handoff | Tracker hierarchy / import draft，預設不寫外部平台 |
-| progress-reporting | Accepted outcomes、actuals、remaining range、forecast |
-| change-control | Scope / capacity / dependency delta 與 superseding plan |
+以 [專案管理工作流程](project-workflow.md) 作為日常入口；其中包含流程圖，以及每一步的 Skill、Script、產物和完成條件。
+[Skill 目錄](skill-catalog.md) 說明 9 個入口和舊名稱對照；拆工、估算與排程等細節保留為按需讀取的 references。
 
-執行 `python scripts/init_requirement.py <REQ-ID>` 建立 intake；工具拒絕覆寫已有需求。
-若已有使用者 BRD，先依 [BRD 流程](brd-intake.md) 建立原始文件，再於初始化加上 `--source` 路徑。
-Agent 先閱讀原文、表格及圖片，再建立 FR 與原始條目的追蹤關係；來源有變更時重新評估。
-requirement.md 的結構化區塊為 IDs / facts / AC / questions 的權威，正文補充背景與理由；不另存 YAML 原稿。
-Agent 讀 AGENTS.md，依 need 載入相關 Skills。Different host 的自動發現與權限要實測；必要時明確讀取 SKILL.md。
+先執行 `python scripts/init_project.py <PROJ-ID>`，填寫真實目標、成功標準、owner、scope，
+在 project.md 登錄所有共用容量的 REQ 和優先序；這份規劃範圍與 Repository 的共用 config 分開。
 
-先 requirement / impact，重大取捨時 architecture review，再 WBS / estimates / risks / assessment review。
-Blocking question 解決後才排程；獨立分析與 options 可以繼續，不能替需求默選答案。
+執行 `python scripts/init_requirement.py <REQ-ID>` 建立 intake，僅產生四份核心頁及 index。
+若已有使用者 BRD，依 [BRD 流程](brd-intake.md) 建立原始文件，初始化加上 `--source` 路徑。
+Agent 讀原文、表格及圖片，再建立原始條目到 FR／AC 的追蹤；依 [術語指南](domain-terminology.md)
+請人類補充未知詞義，不推測其意義。先通過 `validate.py --stage requirements`，此關卡不要求 WBS 或估算。
+
+需要分析方案時，使用 solution-assessment；再由 delivery-planning 執行需要的拆工、估算或排程子步驟。
+使用 `workflow.py --stage solution|planning|delivery` 補建對應文件，命令的 stage 一次選一個值。
+產生文件不會代表階段完成；blocking questions 依 [階段契約](planning-and-delivery.md) 阻擋適用關卡。
+獨立分析可繼續，不能替人類默選語義答案。Agent host 的自動發現需依環境確認；必要時明確讀取 SKILL.md。
 
 ## 8. 估算與排程
 
-V1 使用 judgement scenarios：low、expected、high，不稱 project P50/P80。每 WP 記 basis、rationale、
-confidence、historical refs、scope boundary；共享 E2E 或 rollout 不可在多處重算。
+使用 judgement scenarios：low、expected、high，不稱 project P50/P80。每 WP 記 basis、rationale、
+confidence、historical refs 與 scope boundary；共享 E2E 或 rollout 不可在多處重算。
 
 ```bash
+python scripts/validate.py --requirement <REQ-ID> --stage planning
 python scripts/validate.py --requirement <REQ-ID> --planning
-python scripts/schedule.py --requirement <REQ-ID> --scenario expected
-python scripts/schedule.py --requirement <REQ-ID> --scenario high
+python scripts/schedule_project.py --project <PROJ-ID> --scenario expected
+python scripts/schedule_project.py --project <PROJ-ID> --scenario high
 ```
 
-命令中的尖括號須以實際值取代。Open questions、缺少 owners、skills/capacity 不符或日期未設定會阻擋排程。
+以實際值取代尖括號；先完成資料審查，再填 reviewed_by／reviewed_at／assumptions 並設 ready_for_planning。
+所有選定需求共用同一容量池，跨 REQ 相依寫在 project.md。Open blockers、缺少 owners、skills/capacity 不符
+或日期未設定會阻擋排程。獨立執行兩份專案排程不會互相保留容量，範圍外負荷須已從淨容量扣除。
 
-Greedy 模型每 WP 一人、每人每天最多一個 WP；finish-to-start dependencies 從下一 eligible day 開始。
-工具支援淨容量、holiday、leave、not_before 和 capacity validity；當日剩餘容量不安排另一工作包。
-它是可行排程，不是最佳化 RCPSP solver 或 confidence percentile forecast。
-
-外部 readiness 用 not_before，不是 PD；同一 risk 不能同時計入 effort adjustment 與日曆 buffer。
-precedence-only terminal chain 解釋 dependency pressure，不能直接稱 resource-constrained critical path。
-排程輸出保留逐日 allocations 和 input hashes，以供重算。
+Greedy 模型每 WP 一人、每人每天最多一個 WP；finish-to-start 從下一 eligible day 開始。
+支援淨容量、holiday、leave、not_before 和 capacity validity，當日剩餘容量不安排另一工作包。
+它是可行情境，不是最佳化 RCPSP solver 或機率百分位。外部等待用 not_before，不以 PD 重複計入；
+同一 risk 不能同時計入 effort adjustment 與日曆 buffer。precedence-only terminal chain 是相依下界資訊，
+不能直接稱 resource-constrained critical path。輸出保存 allocations 和 input hashes。
 
 ## 9. HVE Core 的參考方式
 
@@ -152,18 +145,19 @@ resources、templates、instructions 與各元件自己的 license。不要只�
 
 ## 10. Baseline、進度與變更
 
-可逆 draft 不需要每一步批准。Owner 接受 scope / resource / window 後，保存 confirmation evidence、
-確切 inputs / outputs / source revisions 與 hash manifest，放 vault/projects/<id>/baseline/<version>。
-Baseline 不覆寫；後續變更建立 superseding version。
+可逆草稿不需要每一步核准。Owner 接受確切 scope／resource／window 後，用 baseline.py 的
+preview、create、verify 保存輸入、指定情境報表、hashes 和實際核准來源；完整命令見 [工作流程](project-workflow.md)。
+基準位於 `vault/projects/<PROJ-ID>/baseline/<版本>/`，拒絕覆寫；後續變更建立新版本。
+工具不授予核准，不會自動把 live requirement 改成 baseline。
 
-Progress 以 accepted deliverables / AC evidence、actual effort、remaining range 和 as-of date 更新。
-PR 建立、commit 數或 effort spent 不是成果完成比例。scope / capacity / dependency 改變時使用 change-control。
+delivery-tracking 記錄同一 as_of 的工作狀態、actuals、剩餘工時及證據。
+schedule_project.py 的 `--as-of` 使用明確剩餘量，從截止日次日開始排程；完成工作不重排，未知 actuals 保持未知。
+未知剩餘工時或 blocked 的解除日期會阻擋預測。不能把完整 WBS 的 schedule.py 結果當成剩餘工作預測。
 
-V1 scheduler 從完整 WBS 排程，不理解 actuals；不得當成 remaining-work reforecast。使用有 provenance
-的剩餘工作 assessment 或明確記錄的人工 forecast，之後再擴充 actuals-aware engine。
-
-Backlog handoff 預設草擬；外部 tracker 建立、assignment 或通知屬另外授權的操作。
-結案後把經確認的 scope / actual effort / measurement / lessons 回填 historical delivery。
+範圍、容量或相依改變時使用 change-control，保留實際紀錄與舊基準。
+Backlog handoff 產出草案；外部建立、assignment 或通知依已有授權執行。
+結案須通過 closure 關卡：交付完成／有理由的取消、測試證據、人類 AC 接受／豁免、阻塞解除與結案決策。
+close_requirement.py 通過檢查後才改狀態；最後將已量測且可比較的 actual effort、scope 和 lessons 回填歷史。
 
 ## 11. 導入完成檢查
 

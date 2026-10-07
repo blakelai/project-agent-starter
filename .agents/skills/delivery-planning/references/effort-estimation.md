@@ -1,10 +1,3 @@
----
-name: effort-estimation
-description: Estimate auditable effort ranges using comparable delivery evidence.
-  Use after WBS or to re-estimate changed work; distinguish estimates from schedule
-  dates.
----
-
 # Effort Estimation
 
 
@@ -21,9 +14,3 @@ description: Estimate auditable effort ranges using comparable delivery evidence
 7. Run validation. Let scripts compute totals; do not hand-edit summary numbers or schedule dates.
 
 A factor must describe what it changes and why. Do not multiply every package by a generic uncertainty factor.
-
-## OKF editing contract
-
-Before generating documents, read `documentation_language` from the project-data block in `vault/config/project.md` and apply the Document language policy in `AGENTS.md`. Use the resolved language for human-readable content; preserve machine-readable fields and original evidence.
-
-Read `vault/docs/okf-profile.md`. Edit project knowledge under `vault/` as OKF Markdown. Structured facts live in the single marked YAML block in each Project Data note; preserve its markers, unknown fields, OKF frontmatter and surrounding prose. Update semantic body links when adding relationships. Frontmatter `status` is the knowledge lifecycle; project workflow status remains inside the data block. Commands run from the repository root.

@@ -21,6 +21,6 @@ risks: []
 
 ## 關聯頁面
 
-[受影響工作](work-breakdown.md) · [工時情境](estimation.md)
+[需求](requirement.md) · [風險與規劃流程](../../docs/project-workflow.md)
 
 [回到目錄](index.md)

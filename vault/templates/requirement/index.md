@@ -1,4 +1,4 @@
-# {{REQ_ID}} — 需求模板
+# 需求模板
 
 此索引由工具維護；內容請編輯各連結頁面。
 
@@ -14,5 +14,6 @@
 - [{{REQ_ID}} — Project assessment draft](project-plan.md) — {{REQ_ID}} — Project assessment draft。
 - [{{REQ_ID}} — 需求](requirement.md) — {{REQ_ID}} — 需求的可編輯專案資料。
 - [風險登錄](risks.md) — 風險登錄的可編輯專案資料。
+- [{{REQ_ID}} — 方案與影響評估](solution-assessment.md) — 現況、影響、方案與必要決策。
 - [驗收追蹤](traceability.md) — 驗收追蹤的可編輯專案資料。
 - [工作分解](work-breakdown.md) — 工作分解的可編輯專案資料。

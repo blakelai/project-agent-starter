@@ -14,6 +14,9 @@ explicit human clarification/confirmation before becoming project business defin
 
 
 1. Read vault/config/project.md, vault/knowledge/sources.md and vault/docs/data-contract.md.
+   Use init_project.py <PROJ-ID> for an empty project scope. Obtain the goal, success criteria, owner,
+   scope and priorities from actual project decisions; do not invent them. Record all REQs that share
+   the capacity pool in project.md before combined planning.
 2. Confirm project boundary, source owners and required repositories. Keep URLs and logical IDs in
    the shared manifest; map checkouts in ignored .local/sources.md using vault/config/local-sources.template.md.
    Registry entries with kind: brd use a local Project Repository path, not a source checkout or OpenWiki
@@ -31,8 +34,5 @@ explicit human clarification/confirmation before becoming project business defin
 
 Read vault/docs/openwiki-integration.md for setup commands. The manifest is our adapter, not OpenWiki's API.
 
-## OKF editing contract
-
-Before generating documents, read `documentation_language` from the project-data block in `vault/config/project.md` and apply the Document language policy in `AGENTS.md`. Use the resolved language for human-readable content; preserve machine-readable fields and original evidence.
-
-Read `vault/docs/okf-profile.md`. Edit project knowledge under `vault/` as OKF Markdown. Structured facts live in the single marked YAML block in each Project Data note; preserve its markers, unknown fields, OKF frontmatter and surrounding prose. Update semantic body links when adding relationships. Frontmatter `status` is the knowledge lifecycle; project workflow status remains inside the data block. Commands run from the repository root.
+Read AGENTS.md, vault/docs/okf-profile.md and vault/docs/project-workflow.md before editing.
+Apply the shared language, evidence, authority and file-format rules; do not duplicate or override them here.

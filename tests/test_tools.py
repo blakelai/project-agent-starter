@@ -57,7 +57,7 @@ class ArtifactTests(unittest.TestCase):
                 path.write_text(path.read_text().replace('{{REQ_ID}}','REQ-TEST'))
         # Test inputs exist only in this isolated temporary directory, not as repository examples.
         req=load(self.req/'requirement.md')
-        req.update(status='assessed',goal='Validate a delivered capability',
+        req.update(status='assessed',goal='Validate a delivered capability', actors=['requester'],scope=['Test capability'],
                    functional_requirements=[{'id':'FR-01','statement':'Deliver required behavior'}],
                    acceptance_criteria=[{'id':'AC-01','requirement_ids':['FR-01'],'statement':'Expected observable outcome'}],
                    questions=[], terminology_review={'status':'reviewed','by':'test-reviewer',

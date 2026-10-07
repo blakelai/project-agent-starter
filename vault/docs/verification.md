@@ -21,6 +21,10 @@ protection, reports, schedule provenance, and the combined BRD/term CLI workflow
 The definition approval and requirement-impact review are deliberately separate records; tests validate
 their constraints, not the human identity or correctness of any business definition.
 
+Workflow revision on 2026-10-07 adds phase-specific materialization and gates, human acceptance/closure,
+cross-REQ capacity and cycle checks, common-cutoff remaining-work forecasts, cancellation/blocker constraints,
+no-overwrite-on-error, and exact-version baseline preservation/tamper detection. Total: 71 tests.
+
 Run `python scripts/validate.py --all` and `python -m unittest discover -s tests -v`.
 
 The repository contains no populated sample project. Tests create isolated inputs in temporary directories
@@ -32,7 +36,7 @@ workflow versus knowledge lifecycle status, provenance fields, the root-index ex
 schedule generation. End-to-end checks change a Markdown estimate and verify the resulting dates and hashes.
 
 Migration comparison preserved the parsed content of all 17 original project YAML files.
-Local navigation links were checked. The 13 repository Skill definitions include host metadata and
+Local navigation links were checked. The 9 repository Skill definitions include host metadata and
 use the updated OKF editing contract. No live Obsidian application was launched; presentation compatibility
 uses standard Markdown, YAML properties and code blocks, without a community-plugin dependency.
 

@@ -5,17 +5,41 @@ from common import ROOT, load, day, number, requirement_dir, index, topological
 from okf import check_note
 from brd import read_brd, validate_brd_references
 from glossary import validate_catalog, validate_references
+from workflow import CORE, PHASES, STATUS_PHASE
+from delivery import progress_errors
 
 ARTIFACTS = ['requirement.md','evidence.md','work-breakdown.md','estimation.md',
              'risks.md','traceability.md','assessment.md']
 
-def validate(root, directory, planning=False):
+def validate(root, directory, planning=False, stage=None):
     errors = []
     def require(condition, message):
         if not condition:
             errors.append(message)
     data = {}
+    try:
+        initial = load(directory/'requirement.md')
+        phase = STATUS_PHASE[initial['status']]
+        if stage is not None:
+            if stage not in PHASES: raise ValueError('Invalid validation stage')
+            phase = PHASES[max(PHASES.index(phase), PHASES.index(stage))]
+        if planning:
+            phase = PHASES[max(PHASES.index(phase), PHASES.index('planning'))]
+        assessment = load(directory/'assessment.md')
+        if assessment.get('ready_for_planning'):
+            phase = PHASES[max(PHASES.index(phase), PHASES.index('planning'))]
+    except (OSError, KeyError, ValueError, TypeError) as exc:
+        return [f'Malformed workflow state: {exc}']
+    full_plan = PHASES.index(phase) >= PHASES.index('planning')
+    clarified = phase != 'intake'
+    required = set(CORE) | (set(ARTIFACTS) if full_plan else set())
+    defaults = {'work-breakdown.md': {'schema_version':1,'work_packages':[]},
+                'estimation.md': {'schema_version':1,'estimates':[]},
+                'risks.md': {'schema_version':1,'risks':[]}}
     for filename in ARTIFACTS:
+        if filename not in required and not (directory/filename).exists():
+            data[filename] = defaults[filename]
+            continue
         try:
             check_note(directory/filename, root/'vault')
             data[filename] = load(directory/filename)
@@ -28,7 +52,7 @@ def validate(root, directory, planning=False):
     try:
         req=data['requirement.md']; assess=data['assessment.md']
         require(req['id'] == directory.name,'Requirement ID must match directory')
-        require(req['status'] in ['intake','clarified','assessed','baseline','closed'],'Invalid requirement status')
+        require(req['status'] in list(STATUS_PHASE),'Invalid requirement status')
         for field in ['goal','actors','scope','non_goals','constraints','facts','questions','functional_requirements','acceptance_criteria']:
             require(field in req, f'Requirement missing {field}')
         sources=index(load(root/'vault/knowledge/sources.md')['sources'],'sources')
@@ -37,8 +61,8 @@ def validate(root, directory, planning=False):
         fr=index(req['functional_requirements'],'functional requirements')
         questions=index(req['questions'],'questions')
         errors.extend(validate_brd_references(root, req, data['traceability.md'], questions,
-                                             planning or bool(assess.get('ready_for_planning'))))
-        errors.extend(validate_references(root, req, planning or bool(assess.get('ready_for_planning'))))
+                                             clarified))
+        errors.extend(validate_references(root, req, clarified))
         packages=data['work-breakdown.md']['work_packages']; wp=index(packages,'work packages')
         estimates=index(data['estimation.md']['estimates'],'estimates')
         risks=index(data['risks.md']['risks'],'risks')
@@ -54,7 +78,7 @@ def validate(root, directory, planning=False):
             require(not any(e.get('synthetic',False) for e in evidence.values()),'Real planning cannot use synthetic evidence')
         require(isinstance(assess['ready_for_planning'],bool),'ready_for_planning must be boolean')
         require(assess['status'] in ['draft','baseline'],'Invalid assessment status')
-        active=req['status'] != 'intake' or planning or assess['ready_for_planning']
+        active=full_plan
         blocked=[]
         for q in questions.values():
             require(isinstance(q['blocking'],bool),f'{q["id"]}: blocking must be boolean')
@@ -62,7 +86,12 @@ def validate(root, directory, planning=False):
             require(bool(q.get('owner')),f'{q["id"]}: question needs owner')
             if q['status']=='resolved':
                 require(bool(q.get('answer')) and bool(q.get('source')),f'{q["id"]}: resolution requires answer/source')
-            if q['blocking'] and q['status']=='open': blocked.append(q['id'])
+            gates=q.get('blocks', PHASES[1:])
+            require(isinstance(gates,list) and bool(gates) and set(gates)<=set(PHASES[1:]),f'{q["id"]}: invalid blocks stages')
+            if q['blocking'] and q['status']=='open' and any(PHASES.index(g)<=PHASES.index(phase) for g in gates):
+                blocked.append(q['id'])
+            if q.get('affected_work'):
+                require(set(q['affected_work'])<=wp.keys(),f'{q["id"]}: unknown affected work')
         for e in evidence.values():
             require(e['source_id'] in sources,f'{e["id"]}: unknown source')
             for field in ['path','source_revision','observed_at','claim']:
@@ -84,8 +113,13 @@ def validate(root, directory, planning=False):
             require(bool(item.get('statement')),f'{item["id"]}: missing acceptance statement')
             require(bool(item.get('requirement_ids')),f'{item["id"]}: no FR link')
             require(set(item.get('requirement_ids',[])) <= fr.keys(),f'{item["id"]}: unknown FR')
+        if clarified:
+            require(bool(fr) and bool(ac),'Clarified requirement needs FR and AC')
+            require(bool(req.get('scope')) and bool(req.get('actors')) and req.get('goal') not in [None,'','TO_CLARIFY'],
+                    'Clarified requirement needs goal, actors and scope')
+            require(not blocked,f'Open blocking questions for {phase}: {blocked}')
         if active:
-            require(bool(ac) and bool(fr) and bool(wp),'Clarified assessment needs FR, AC and work packages')
+            require(bool(ac) and bool(fr) and bool(wp),'Planning assessment needs FR, AC and work packages')
             require(set(estimates)==set(wp),'Estimates must cover exactly the work package IDs')
         topological(packages)
         for p in wp.values():
@@ -103,7 +137,7 @@ def validate(root, directory, planning=False):
                 require(owner in people,f'{identifier}: unknown person')
                 if owner in people:
                     require(set(p['skills']) <= set(people[owner]['skills']),f'{identifier}: person lacks required skills')
-            if planning or assess['ready_for_planning']:
+            if full_plan:
                 require(owner in capacity['people'],f'{identifier}: no capacity for assignment')
         for e in estimates.values():
             identifier=e['id']; values=e['effort_pd']
@@ -126,7 +160,9 @@ def validate(root, directory, planning=False):
         for r in risks.values():
             require(r['probability'] in ['low','medium','high'] and r['impact'] in ['low','medium','high'],f'{r["id"]}: invalid risk rating')
             require(bool(r.get('owner')) and bool(r.get('trigger')) and bool(r.get('mitigation')),f'{r["id"]}: risk owner/trigger/mitigation missing')
-            require(bool(r['affected_work']) and set(r['affected_work'])<=wp.keys(),f'{r["id"]}: invalid affected work')
+            affected=r.get('affected_work',[]); affected_fr=r.get('affected_requirements',[])
+            require(set(affected)<=wp.keys() and set(affected_fr)<=fr.keys(),f'{r["id"]}: invalid risk references')
+            require(bool(affected) if full_plan else bool(affected or affected_fr),f'{r["id"]}: risk needs affected work or early FR reference')
             require(r['treatment'] in ['effort-included','calendar-gate','monitor-only'],f'{r["id"]}: invalid risk treatment')
             if r['treatment']=='effort-included':
                 require(any(r['id'] in e.get('risk_ids',[]) for e in estimates.values()),f'{r["id"]}: included risk has no estimate mapping')
@@ -153,7 +189,11 @@ def validate(root, directory, planning=False):
             require(person in people,f'Capacity refers to unknown person {person}')
             require(number(c['fraction']) and 0<c['fraction']<=1,f'{person}: capacity fraction must be in (0,1]')
             for value in c.get('leave',[]): day(value)
-        scheduling = planning or assess['ready_for_planning']
+        if phase in {'delivery','closure'}:
+            progress_path=directory/'progress.md'
+            check_note(progress_path, root/'vault')
+            errors.extend(progress_errors(load(progress_path), wp, links, closing=phase=='closure'))
+        scheduling = full_plan
         if scheduling:
             require(bool(capacity.get('valid_from')) and bool(capacity.get('valid_until')),'Scheduling requires capacity validity dates')
             require(bool(calendar.get('start_date')),'Scheduling requires a start_date')
@@ -163,7 +203,7 @@ def validate(root, directory, planning=False):
         require(isinstance(calendar['work_weekdays'],list) and all(type(x) is int and 0<=x<=6 for x in calendar['work_weekdays']),'Invalid work_weekdays')
         for value in calendar.get('holidays',[]): day(value)
         if calendar.get('start_date'): day(calendar['start_date'])
-    except (KeyError,TypeError,ValueError,AttributeError) as exc:
+    except (OSError,KeyError,TypeError,ValueError,AttributeError) as exc:
         errors.append(f'Malformed artifact: {exc}')
     return errors
 
@@ -172,7 +212,8 @@ def main():
     parser.add_argument('--root',type=Path,default=ROOT)
     group=parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--all',action='store_true'); group.add_argument('--requirement')
-    parser.add_argument('--planning',action='store_true')
+    parser.add_argument('--planning',action='store_true',help='Require scheduling readiness (compatibility flag)')
+    parser.add_argument('--stage',choices=PHASES,help='Validate at least this phase; never downgrade current state')
     args=parser.parse_args()
     dirs=sorted((args.root/'vault/requirements').glob('REQ-*')) if args.all else [requirement_dir(args.root,args.requirement)]
     failures=[]
@@ -194,7 +235,7 @@ def main():
         try: load(path)
         except Exception as exc: failures.append(f'{path.relative_to(args.root)}: {exc}')
     for directory in dirs:
-        failures += [f'{directory.name}: {e}' for e in validate(args.root,directory,args.planning)]
+        failures += [f'{directory.name}: {e}' for e in validate(args.root,directory,args.planning,args.stage)]
     if failures:
         print('\n'.join(f'ERROR {e}' for e in failures)); return 1
     print(f'OK: OKF project profile, native YAML syntax and {len(dirs)} requirement artifact sets'); return 0

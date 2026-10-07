@@ -1,12 +1,12 @@
 """Create an intake from templates without overwriting an existing requirement."""
 import argparse
-import shutil
 import os
 from pathlib import Path
 from urllib.parse import quote
 from common import ROOT, requirement_dir, load, write, index
 from okf import write_directory_index
 from brd import capture_brd, registered_sources, pending_coverage
+from workflow import materialize
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
@@ -21,10 +21,7 @@ def main():
         registry=registered_sources(args.root, documents) if documents else None
     except (OSError, ValueError, KeyError, TypeError) as exc:
         raise SystemExit(str(exc))
-    shutil.copytree(args.root/'vault/templates/requirement',target)
-    for path in target.rglob('*'):
-        if path.is_file() and path.suffix == '.md':
-            path.write_text(path.read_text(encoding='utf-8').replace('{{REQ_ID}}',args.id),encoding='utf-8')
+    materialize(args.root, args.id, 'intake')
     if documents:
         req=load(target/'requirement.md'); req['source_documents']=documents; write(target/'requirement.md',req)
         trace=load(target/'traceability.md'); trace['source_coverage']=pending_coverage(documents)

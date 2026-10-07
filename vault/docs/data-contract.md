@@ -30,23 +30,26 @@ Field names below refer to the data block unless explicitly called frontmatter.
   wiki timestamps alone do not establish source freshness. Use `synthetic: true` for fixtures.
   For `kind: brd`, source_revision is the captured manifest SHA-256 covering the BRD and referenced images;
   path must identify the document, an original item anchor, or a captured image. See [BRD intake](brd-intake.md).
-- `requirement.md`: `status: intake|clarified|assessed|baseline|closed`; `facts` use
-  `CONFIRMED|ASSUMED|UNKNOWN`; `questions` include `blocking` and `status: open|resolved`.
+- `requirement.md`: `status: intake|clarified|assessed|baseline|in-progress|closed`; `facts` use
+  `CONFIRMED|ASSUMED|UNKNOWN`; `questions` include `blocking` and `status: open|resolved`, with optional `blocks` stages and `affected_work`.
+  Requirements clarification does not require WBS or estimates; see [phase gates](planning-and-delivery.md).
   Optional `source_documents` records BRD snapshots and image observations. BRD-backed FRs each need
   `source_refs: [{document_id, item_id}]`; one FR may refer to multiple original items.
-- `impact-analysis.md`: use `CONFIRMED|POSSIBLE|UNKNOWN` plus evidence IDs; record absent
+- `solution-assessment.md`: combine scoped impacts and alternatives; use `CONFIRMED|POSSIBLE|UNKNOWN` plus evidence IDs; record absent
   evidence and incompatible/contradictory sources explicitly.
-- `architecture-options.md`: describe alternatives and consequences. `decisions.md` records
-  `proposed|accepted|superseded` decisions with owner and confirmation evidence.
+- Material decisions use an ADR with `proposed|accepted|superseded`, owner and decision evidence.
+  Existing impact-analysis, architecture-options and decisions documents remain valid historical references.
 - `work-breakdown.md`: `work_packages` have `id`, `name`, `work_type`, `complexity`,
   `acceptance_ids`, `evidence_ids`, `deliverable`, `done_when`, `depends_on`, `skills`,
   `assigned_to`, `not_before` and `priority`. Dependencies are finish-to-start, next workday.
 - `estimation.md`: `estimates` reference WP IDs, `basis`, `historical_refs`, `confidence`
   and `effort_pd: {low, expected, high}`. These are judgement scenarios, not quantiles.
   Do not store totals manually; scheduler computes them. If no basis exists, keep
-  requirement in intake and write the unresolved estimate as a question.
+  planning readiness false and write the unresolved estimate as a planning-blocking question.
+  A semantically clarified requirement can remain clarified while estimation is pending.
 - `risks.md`: each risk has probability/impact, owner, trigger, mitigation, affected work,
-  and `treatment: effort-included|calendar-gate|monitor-only`. Not-before gates belong in WBS.
+  and `treatment: effort-included|calendar-gate|monitor-only`. Early monitor-only risks may link FR IDs in
+  `affected_requirements`; planning requires affected WP references. Not-before gates belong in WBS.
 - `traceability.md`: links AC -> work packages -> test evidence; `planned` is not `passed`.
   For captured BRDs, `source_coverage` accounts for every original item and agrees with FR source_refs.
   Dispositions are pending/analyzed/needs-clarification/deferred/excluded. See [the full contract](brd-intake.md).
@@ -59,9 +62,16 @@ Field names below refer to the data block unless explicitly called frontmatter.
   must record its terminology review. Existing assessments must add this before their next planning run.
 - `schedule-expected.md` / `schedule-high.md`: generated algorithm outputs with input hashes.
 - `project-plan.md`: executive assessment; interpret scenario windows and confidence.
-- `progress.md`: actuals and remaining-effort range by WP, as-of date, external blockers.
+- `progress.md`: actuals, explicit remaining-effort range, work status, as-of date, blockers and closure.
+  Each AC also has a human acceptance/waiver record at closure; planned tests cannot imply acceptance.
+- `vault/projects/<PROJ-ID>/project.md`: goal, success criteria, owner, selected REQs with priority, cross-REQ dependencies.
+- `forecast-<scenario>.md`: remaining-work scenario from a common inclusive observation cutoff.
 - `vault/projects/<id>/baseline/`: immutable copies + hash manifest created only after explicit owner baseline decision.
-- `changes/`: proposed scope/resource/date changes, impact, decision and superseded baseline.
+- Change notes use `vault/templates/change-request.md` within the relevant project: proposed scope/resource/date changes,
+  impact, decision and superseded baseline.
+
+Full project, question, progress, acceptance and baseline field rules: [planning and delivery](planning-and-delivery.md).
+Commands, artifact materialization and phase routing: [project workflow](project-workflow.md).
 
 ## Scheduling model
 
@@ -74,6 +84,9 @@ this conservative model intentionally does not reuse a final-day remainder.
 `not_before` is an external readiness date, not development effort. Missing an external readiness
 fact blocks scheduling until a bounded assumption is recorded and acknowledged as a scenario.
 Unresolved blocking questions and non-ready assessments block the scheduling command.
+For shared capacity across REQs, use schedule_project.py with all competing work selected.
+Separate project runs do not reserve capacity against one another. Forecast mode substitutes explicit remaining
+effort after as_of and preserves historical observations; it never subtracts actuals from original estimates.
 The deterministic greedy schedule is feasible under these simplified rules, not an optimal RCPSP result,
 and no project confidence percentile is claimed.
 
@@ -84,7 +97,9 @@ the critical chain of the resource-constrained plan. Compare it with the final r
 ## Scope of validators
 
 `validate.py` checks structural types, IDs, DAG, references, estimate ordering, skill/capacity alignment,
-required artifacts and readiness for scheduling. It cannot verify that a wiki claim is factually true,
+phase-dependent required artifacts, delivery/closure evidence metadata and readiness for scheduling.
+Project scope and combined DAG validation occurs in schedule_project.py; baseline hash integrity is checked
+separately by baseline.py verify. It cannot verify that a wiki claim is factually true,
 that estimates are calibrated, or that an approval actually came from the named human.
 BRD validation also checks original item IDs, coverage, image review records and source freshness.
 It does not interpret images, evaluate the semantic quality of a mapping, or prove a reviewer inspected a file.

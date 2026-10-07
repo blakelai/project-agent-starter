@@ -12,6 +12,8 @@ okf_version: '0.2'
 - [專案初始化](docs/initialization-guide.zh-TW.md) — 從既有 OpenWiki 接上專案工作流程。
 - [OKF 規約](docs/okf-profile.md) — 頁面與資料區塊的編輯規則。
 
+- [專案管理工作流程](docs/project-workflow.md) — 流程圖、每一步的 Skill／指令及完成條件。
+
 ## 專案工作
 
 - [專案設定](config/index.md) — 專案 owner、Wiki 路由與本機對映模板。
@@ -20,7 +22,7 @@ okf_version: '0.2'
 - [規劃資料](planning/index.md) — 人員、淨容量、日曆、估算規則與實績。
 - [原始需求 BRD](intake/index.md) — 使用者提供的文字、表格與圖片。
 - [需求](requirements/index.md) — 建立後的需求、評估、排程和進度。
-- [專案與基準](projects/index.md) — 已核准 baseline 與執行紀錄。
+- [專案與基準](projects/index.md) — 規劃範圍、跨需求排程、剩餘工作預測與已核准 baseline。
 
 ## 方法與模板
 

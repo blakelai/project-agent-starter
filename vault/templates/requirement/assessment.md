@@ -28,6 +28,6 @@ owner_confirmation: null
 
 ## 關聯頁面
 
-[評估審查](assessment-review.md) · [需求](requirement.md) · [專案計畫](project-plan.md)
+[需求](requirement.md) · [工作流程與關卡](../../docs/project-workflow.md)
 
 [回到目錄](index.md)

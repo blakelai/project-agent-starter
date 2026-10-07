@@ -1,4 +1,0 @@
-interface:
-  display_name: "Work Breakdown"
-  short_description: "Run the work breakdown workflow"
-  default_prompt: "Use $work-breakdown to complete the applicable project workflow."

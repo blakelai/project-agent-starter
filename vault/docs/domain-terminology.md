@@ -116,7 +116,7 @@ by=實際檢閱者，at=含時區時間，notes=檢閱範圍、結論與限制�
 source 指向術語問題，term_revision 填該 term_ref 的 source_revision。不要複製另一份共用答案。
 新增的需求問題可以使用其他實際 ID，但 term_question 必須引用已連結術語中存在的問題。
 
-`validate.py --planning` 與 assessment.ready_for_planning 檢查會阻擋未確認的 meaning、
+`validate.py --stage requirements` 起的關卡、`--planning` 與 assessment.ready_for_planning 檢查會阻擋未確認的 meaning、
 失效確認、過期引用、未檢閱項目、懸空問題及尚未解決的阻擋問題。
 只有所有既有評估條件也符合後，assessment-review 才能重新標示 ready_for_planning。
 
@@ -165,7 +165,7 @@ BRD 重新擷取也會撤回術語檢閱，因為新原文可能引入新概念�
 
 ## 限制與遷移
 
-- 既有需求若沒有 terminology_review，在下一次 readiness／planning 前需補做；空白 intake 仍可驗證。
+- 既有需求若沒有 terminology_review，在下一次 requirements 關卡／readiness／planning 前需補做；空白 intake 仍可驗證。
 - 第一版不自動擷取所有名詞、不做 OCR、不做語意相似搜尋。Agent 需閱讀文字、表格、圖片並主動登錄歧義。
 - 圖片只支援 `![說明](assets/<TERM-ID>/file.png)` 等本地行內格式；空白需 URL 編碼。
   遠端圖片、Wiki embeds、reference-style 圖片、HTML 圖片與超出專屬附件目錄的路徑會拒絕。

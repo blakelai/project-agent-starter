@@ -75,14 +75,17 @@ Agent 填寫模板時套用本設定；對工具產生的排程另寫指定語�
 概念身分由 bundle 內的路徑決定；FR、AC、WP 等業務 ID 仍以資料欄位保存，不因改標題而變更。
 `index.md` 提供目錄入口；概念頁另外連結相關需求、證據、估算和規劃。
 
-空白模板也有 OKF frontmatter。初始化工具替換 `{{REQ_ID}}`、建立需求與索引，拒絕覆寫已有需求。
+空白模板也有 OKF frontmatter。初始化工具替換 `{{REQ_ID}}`、建立四份核心頁及索引，拒絕覆寫已有需求。
+workflow.py 依階段加入 solution、planning 或 delivery 文件，只建立缺少的頁面；既有舊版模板保留以便沿用。
+project.md 模板的 `{{PROJECT_ID}}` 由 init_project.py 替換。詳見 [工作流程](project-workflow.md)。
 新增筆記可從 [概念模板](../templates/concept.md) 開始。新增或搬移頁面時同步調整連結。
 需求目錄及需求總目錄的索引由工具更新，手寫說明應放到概念頁。
 
-`schedule-expected.md`、`schedule-high.md` 是衍生產物，表格與完整數據由同一結果產生。
+`schedule-*.md`、`forecast-*.md` 是衍生產物，表格與完整數據由同一結果產生。
 重算會更新正文、保留未知 frontmatter 欄位，並移除舊 `verified`；重新計算本身不是重新核准。
 要改日期或工時，先修改輸入再重算。人為判斷寫入 `project-plan.md`。
-核准的 baseline 保存確切輸入、輸出與 hashes；不得在 baseline 副本直接重算。
+核准的 baseline 由 baseline.py 保存確切輸入、指定報表與 hashes；不得在 baseline 副本直接重算。
+snapshot 中保存原檔 bytes 及原路徑，不改寫已核准的正文或連結；未納入快照的外部連結仍需回到 live Vault／來源檢索。
 
 ## 格式範圍與驗證
 
