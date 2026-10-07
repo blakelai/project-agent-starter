@@ -9,6 +9,7 @@ status: draft
 
 這 9 個 Skills 是本 Repository 的專案工作流程，放在 `.agents/skills/`，不是安裝到個人環境的 Skills。
 日常步驟及命令見 [專案工作流程](project-workflow.md)；共用原則集中於 `AGENTS.md`。
+Skill 的 `SKILL.md`、隨附參考文件及 host 顯示資訊統一以英文維護；產生的專案文件仍依 `documentation_language`。
 Skill 數量不等於流程步驟數量；可依目前問題只執行其一個子步驟。
 
 | Skill | 何時使用 | 主要產物／責任 |

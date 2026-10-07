@@ -7,6 +7,9 @@ Run as one agent. Do not create a multi-agent roster by default.
 
 ## Document language
 
+Author and maintain repository-local Skill definitions, bundled reference prose, and host UI metadata
+under `.agents/skills/` in English. The project document language setting below does not override this rule.
+
 Before generating documents, read `documentation_language` from the marked project-data block in
 `vault/config/project.md`. A language explicitly requested for the current task takes precedence over
 this project default; a missing, null or blank setting defaults to `zh-TW`. Do not change the project
@@ -17,7 +20,7 @@ table labels and human-readable data values. Preserve schema keys, type/enum val
 URLs, commands, code, proper names and verbatim evidence; label any added translation separately.
 For local edits to an existing document, retain its language unless translation is requested;
 for whole-document regeneration, use the resolved language. Do not translate immutable baselines.
-This setting governs Agent-authored content; CLI template copying and fixed tool labels do not translate.
+This setting governs Agent-authored project documents; CLI template copying and fixed tool labels do not translate.
 Follow the detailed policy in `vault/docs/okf-profile.md`.
 
 ## Workflow

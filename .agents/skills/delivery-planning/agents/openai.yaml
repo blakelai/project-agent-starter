@@ -1,4 +1,4 @@
 interface:
-  display_name: "交付規劃"
-  short_description: "整合工作分解、工時估算、跨需求容量排程與剩餘工作預測"
+  display_name: "Delivery Planning"
+  short_description: "Plan work, estimates, shared capacity, and remaining effort"
   default_prompt: "Use $delivery-planning to handle the current project phase using verified inputs and the project workflow."

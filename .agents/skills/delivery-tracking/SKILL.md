@@ -3,18 +3,25 @@ name: delivery-tracking
 description: Track delivery from backlog handoff through progress, acceptance and closure. Use for tracker mappings, status reports, actual and remaining effort updates, milestone reviews, acceptance evidence, or closing completed/cancelled scope.
 ---
 
-# 交付追蹤
+# Delivery Tracking
 
-1. 讀取 AGENTS.md、vault/docs/project-workflow.md、vault/docs/planning-and-delivery.md、計畫與基準。
-   遵守共用語言、OKF、證據及外部操作權限。執行 `workflow.py --requirement <REQ-ID> --stage delivery` 補上交付文件。
-2. 交接工作時讀 [Backlog 對映](references/backlog-handoff.md)，保留 REQ/WP 到 tracker 的穩定對映。
-   外部 ID 未查到就保持未知；不自行建立工單、改 sprint、指派他人或發送訊息。
-3. 更新進度時讀 [成果與報告](references/progress-reporting.md)，以同一 as_of 日期記錄每個 WP 的狀態、
-   實際投入、剩餘工時情境與阻擋。完成需日期及證據，未知實際投入保留 null 並說明原因。
-4. 區分開發完成、測試通過及業務接受。人類的 AC 接受或豁免紀錄寫入 traceability.md；
-   不以 PR、commit、已花工時或 Agent 檢查通過替代人類驗收。
-5. 用 `validate.py --requirement <REQ-ID> --stage delivery` 驗證進度；把剩餘工作交 delivery-planning 計算。
-   未知剩餘工時、未定解除日期的阻擋不產生假精準的完成日。容量／範圍變更交 change-control。
-6. 關閉前要求完整的驗收或具理由的人類豁免、工作完成／取消紀錄，以及人類結案決策。
-   用 `validate.py --requirement <REQ-ID> --stage closure`，通過後執行 `close_requirement.py --requirement <REQ-ID>`。
-7. 記錄實際範圍、測量方法與經驗；只把可比較且已測量的結果回填歷史資料。不修改歷史基準。
+1. Read AGENTS.md, vault/docs/project-workflow.md, vault/docs/planning-and-delivery.md, the plan, and the baseline.
+   Follow shared language, OKF, evidence, and external-action authority rules. Run
+   `workflow.py --requirement <REQ-ID> --stage delivery` to create missing delivery artifacts.
+2. For handoff, read [Backlog Mapping](references/backlog-handoff.md). Preserve stable REQ/WP-to-tracker
+   mappings. Leave external IDs unknown until verified. Do not create tickets, change sprints, assign others,
+   or send messages without authorization.
+3. For progress updates, read [Outcomes and Reporting](references/progress-reporting.md). Record each WP's
+   status, actual effort, remaining-effort scenarios, and blockers at the same as_of date. Completion requires
+   a date and evidence; retain null for unknown actual effort and explain why it is unknown.
+4. Distinguish implementation completion, test success, and business acceptance. Record human AC acceptance
+   or waivers in traceability.md. Do not substitute PRs, commits, effort spent, or successful Agent checks
+   for human acceptance.
+5. Validate progress with `validate.py --requirement <REQ-ID> --stage delivery`, then use delivery-planning
+   to schedule remaining work. Do not produce misleadingly precise finish dates when remaining effort or
+   blocker release dates are unknown. Route capacity or scope changes through change-control.
+6. Before closure, require complete human acceptance or reasoned waivers, work completion/cancellation
+   records, and the human closure decision. Run `validate.py --requirement <REQ-ID> --stage closure`;
+   after it passes, run `close_requirement.py --requirement <REQ-ID>`.
+7. Record actual scope, measurement methods, and lessons. Add only comparable, measured outcomes to
+   delivery history. Preserve historical baselines.

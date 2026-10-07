@@ -1,4 +1,4 @@
 interface:
-  display_name: "領域詞彙管理"
-  short_description: "建立共用領域詞彙、登錄歧義並追蹤人類確認與需求引用版本"
+  display_name: "Domain Terminology"
+  short_description: "Manage domain terms and human-confirmed definitions"
   default_prompt: "Use $domain-terminology to review domain terms, register ambiguities, and request human clarification without inventing definitions."

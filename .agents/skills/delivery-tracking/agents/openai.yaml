@@ -1,4 +1,4 @@
 interface:
-  display_name: "交付追蹤"
-  short_description: "追蹤工作對映、實際成果與剩餘工作，維護驗收及結案證據"
+  display_name: "Delivery Tracking"
+  short_description: "Track handoffs, progress, acceptance, and closure evidence"
   default_prompt: "Use $delivery-tracking to handle the current project phase using verified inputs and the project workflow."

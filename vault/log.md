@@ -1,5 +1,9 @@
 # Vault 變更紀錄
 
+## 2026-10-08
+
+- **Skill 語言**：全部 9 個 Agent Skills 的定義、參考文件及 host 顯示資訊統一為英文；專案文件語言仍依 documentation_language 設定。
+
 ## 2026-10-07
 
 - **流程整併**：13 個 Skills 整併為 9 個；新增 [流程圖與逐步命令](docs/project-workflow.md)，需求文件按階段建立。
