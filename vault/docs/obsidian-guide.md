@@ -33,6 +33,9 @@ Obsidian 原生 Properties 不支援巢狀資料，因此複雜資料放在正�
 
 ## 建立與評估需求
 
+已有使用者原始需求時，可先建立 [BRD](brd-intake.md)，以 Markdown 撰寫原文與表格，附上本機圖片，
+再由初始化工具的 `--source` 引用。BRD 原文與分析頁分開維護，來源更新會使舊分析快照過期。
+
 1. 依 [初始化指南](initialization-guide.zh-TW.md) 填寫自己的設定與已確認事實。
 2. 在 Repository 根目錄執行 `python scripts/init_requirement.py <REQ-ID>`，以實際 ID 取代尖括號。
 3. 開啟 `requirements/<REQ-ID>/index.md`，編輯同目錄的 requirement、evidence、impact 等頁面。

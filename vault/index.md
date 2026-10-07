@@ -17,6 +17,7 @@ okf_version: '0.2'
 - [專案設定](config/index.md) — 專案 owner、Wiki 路由與本機對映模板。
 - [來源知識](knowledge/index.md) — Source Repository 登錄與跨專案關係。
 - [規劃資料](planning/index.md) — 人員、淨容量、日曆、估算規則與實績。
+- [原始需求 BRD](intake/index.md) — 使用者提供的文字、表格與圖片。
 - [需求](requirements/index.md) — 建立後的需求、評估、排程和進度。
 - [專案與基準](projects/index.md) — 已核准 baseline 與執行紀錄。
 

@@ -64,6 +64,9 @@ Agent 填寫模板時套用本設定；對工具產生的排程另寫指定語�
 
 ## 連結、模板與產物
 
+使用者原始 BRD 依 [BRD 規約](brd-intake.md) 保存在 `intake/`，只需要 OKF frontmatter 與一般 Markdown
+正文，不要求將原文轉成 project-data。引用的圖片維持二進位附件；分析快照與涵蓋資料才使用 project-data。
+
 使用相對 Markdown 連結，保留 GitHub 與一般編輯器的可讀性；關係意義寫在周邊文字。
 概念身分由 bundle 內的路徑決定；FR、AC、WP 等業務 ID 仍以資料欄位保存，不因改標題而變更。
 `index.md` 提供目錄入口；概念頁另外連結相關需求、證據、估算和規劃。

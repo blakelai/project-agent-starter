@@ -19,14 +19,21 @@ Field names below refer to the data block unless explicitly called frontmatter.
   for Agent-authored documents, using a language-code string such as `zh-TW`, `en` or `ja`.
   A missing, null or blank value defaults to `zh-TW`; an explicit per-task language overrides it.
   See the [OKF profile](okf-profile.md) for editing scope and machine-readable field preservation.
-- `vault/knowledge/sources.md`: shared source IDs, repo URLs and wiki roots; NOT an OpenWiki configuration file.
+- `vault/knowledge/sources.md`: shared source IDs, repo URLs and wiki roots; BRD entries use `kind: brd`
+  and a Repository-relative `path`. It is not an OpenWiki configuration file.
+- `vault/intake/<BRD-ID>/brd.md`: original OKF BRD with stable lowercase `## br-...` items and local images
+  in `assets/`. Its prose is authoritative original input; interpretation remains in the assessment.
 - `.local/sources.md`: machine-specific checkout paths, ignored by Git.
 - `vault/planning/*`: owned planning facts with validity windows and explicit units.
 - `evidence.md`: each evidence record has `id`, `source_id`, `path`, `source_revision`,
   `observed_at`, `state` and `claim`. `source_revision` refers to the checkout commit;
   wiki timestamps alone do not establish source freshness. Use `synthetic: true` for fixtures.
+  For `kind: brd`, source_revision is the captured manifest SHA-256 covering the BRD and referenced images;
+  path must identify the document, an original item anchor, or a captured image. See [BRD intake](brd-intake.md).
 - `requirement.md`: `status: intake|clarified|assessed|baseline|closed`; `facts` use
   `CONFIRMED|ASSUMED|UNKNOWN`; `questions` include `blocking` and `status: open|resolved`.
+  Optional `source_documents` records BRD snapshots and image observations. BRD-backed FRs each need
+  `source_refs: [{document_id, item_id}]`; one FR may refer to multiple original items.
 - `impact-analysis.md`: use `CONFIRMED|POSSIBLE|UNKNOWN` plus evidence IDs; record absent
   evidence and incompatible/contradictory sources explicitly.
 - `architecture-options.md`: describe alternatives and consequences. `decisions.md` records
@@ -41,6 +48,8 @@ Field names below refer to the data block unless explicitly called frontmatter.
 - `risks.md`: each risk has probability/impact, owner, trigger, mitigation, affected work,
   and `treatment: effort-included|calendar-gate|monitor-only`. Not-before gates belong in WBS.
 - `traceability.md`: links AC -> work packages -> test evidence; `planned` is not `passed`.
+  For captured BRDs, `source_coverage` accounts for every original item and agrees with FR source_refs.
+  Dispositions are pending/analyzed/needs-clarification/deferred/excluded. See [the full contract](brd-intake.md).
 - `assessment.md`: readiness and explicit owner confirmation when establishing a baseline.
 - `schedule-expected.md` / `schedule-high.md`: generated algorithm outputs with input hashes.
 - `project-plan.md`: executive assessment; interpret scenario windows and confidence.
@@ -71,6 +80,8 @@ the critical chain of the resource-constrained plan. Compare it with the final r
 `validate.py` checks structural types, IDs, DAG, references, estimate ordering, skill/capacity alignment,
 required artifacts and readiness for scheduling. It cannot verify that a wiki claim is factually true,
 that estimates are calibrated, or that an approval actually came from the named human.
+BRD validation also checks original item IDs, coverage, image review records and source freshness.
+It does not interpret images, evaluate the semantic quality of a mapping, or prove a reviewer inspected a file.
 
 The repository-wide check also validates supported OKF metadata and the local data profile, including
 duplicate YAML keys and duplicate data blocks. It is not a full OKF conformance suite.

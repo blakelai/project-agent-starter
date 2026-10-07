@@ -2,6 +2,7 @@
 
 ## 2026-10-07
 
+- **BRD 輸入**：新增原始需求模板、附件目錄、來源快照、FR 引用、涵蓋檢查及草案來源更新流程。
 - **語言設定**：加入 [documentation_language](config/project.md)，規範 Agent 的文件預設語言與單次覆寫規則。
 - **格式調整**：專案內容集中至 OKF v0.2 Vault，新增 [編輯規約](docs/okf-profile.md)。
 - **資料調整**：原 YAML 規劃資料轉為 Markdown 頁面的單一結構化區塊；需求資料與敘述合併。

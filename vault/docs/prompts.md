@@ -17,6 +17,10 @@ cross-repository dependency question with source revisions. Preserve OpenWiki-ma
 
 ## Requirement assessment
 
+For a BRD-backed assessment, provide its repository-relative Markdown path and read vault/docs/brd-intake.md.
+Initialize with --source, read original items/tables/images, then map BRD items to FR and AC. Record image
+observations and account for every original item; do not modify the original BRD or infer unread image content.
+
 Evaluate <REQ-ID>: <requirement statement>. Apply the assessment workflow with actual repository evidence
 and planning facts. Clarify acceptance, failure semantics, external ownership and readiness. Produce useful
 independent analysis while questions remain open; schedule only after blocking questions are resolved.

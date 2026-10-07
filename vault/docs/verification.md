@@ -9,6 +9,11 @@ status: draft
 
 OKF migration validation on 2026-10-07: 23 automated tests passed.
 
+BRD intake validation on 2026-10-07: 37 automated tests passed in total. The added cases cover original
+text/binary preservation, multiple source documents and REQ scopes, invalid imports without partial output,
+item/coverage consistency, attachment review gates, stale source detection, explicit refresh, preservation
+of dangling references for review, baseline protection, and BRD provenance in schedule output.
+
 Run `python scripts/validate.py --all` and `python -m unittest discover -s tests -v`.
 
 The repository contains no populated sample project. Tests create isolated inputs in temporary directories

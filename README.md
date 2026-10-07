@@ -59,6 +59,20 @@ python scripts/schedule.py --requirement <REQ-ID> --scenario high
 可改成 `en`、`ja` 或其他明確語言代碼，讓 Agent 依此撰寫新文件；單次任務明確指定語言時優先採用。
 規則涵蓋文件敘述，保留 schema 欄位、ID、程式碼與原文引用。CLI 的固定文字維持內建語言。
 
+## 使用原始需求 BRD
+
+先建立空白 BRD，在 Obsidian 中填入原始條目、表格與圖片，再引用它建立需求評估：
+
+```bash
+python scripts/init_brd.py <BRD-ID> --title "原始需求標題"
+python scripts/init_requirement.py <REQ-ID> --source vault/intake/<BRD-ID>/brd.md
+```
+
+以自己的 ID 取代尖括號。BRD 使用 `## br-001` 等穩定編號，圖片放在同目錄 `assets/`。
+支援重複 `--source` 引用多份 BRD；原文、圖片與分析以來源 hashes 和涵蓋表追蹤。
+資料更新後，可用 `python scripts/refresh_brd.py --requirement <REQ-ID>` 重設草案的來源與準備度。
+詳見 [BRD 操作與資料契約](vault/docs/brd-intake.md)。
+
 ## 文件與目錄
 
 - [初始化指南](vault/docs/initialization-guide.zh-TW.md)：完整中文導入流程。

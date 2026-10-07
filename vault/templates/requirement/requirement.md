@@ -38,6 +38,7 @@ schema_version: 1
 id: '{{REQ_ID}}'
 synthetic: false
 status: intake
+source_documents: []
 goal: TO_CLARIFY
 actors: []
 scope: []

@@ -2,6 +2,8 @@
 
 此索引由工具維護；內容請編輯各連結頁面。
 
+- [BRD 原始需求匯入與分析](brd-intake.md) — 手動整理原文、圖片、來源引用與涵蓋檢查。
+
 - [Artifact contract v1](data-contract.md) — Artifact contract v1。
 - [HVE Core patterns worth adopting](hve-reference.md) — HVE Core patterns worth adopting。
 - [以既有 OpenWiki 初始化 Project Repository](initialization-guide.zh-TW.md) — 以既有 OpenWiki 初始化 Project Repository。

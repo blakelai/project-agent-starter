@@ -11,6 +11,8 @@ description: Initialize project knowledge routing from existing OpenWiki reposit
 1. Read vault/config/project.md, vault/knowledge/sources.md and vault/docs/data-contract.md.
 2. Confirm project boundary, source owners and required repositories. Keep URLs and logical IDs in
    the shared manifest; map checkouts in ignored .local/sources.md using vault/config/local-sources.template.md.
+   Registry entries with kind: brd use a local Project Repository path, not a source checkout or OpenWiki
+   workspace. Read vault/docs/brd-intake.md for their registration and byte-level source revisions.
 3. Inspect existing OpenWiki entry pages and source commits. Reuse repository wikis; do not reinitialize them.
 4. If OpenWiki MCP exists, discover available tools and their schemas; list workspaces/wikis, then search
    a concrete capability and read selected sections with returned wiki IDs/anchors. If multiple workspaces

@@ -3,6 +3,7 @@ import argparse
 from pathlib import Path
 from common import ROOT, load, day, number, requirement_dir, index, topological
 from okf import check_note
+from brd import read_brd, validate_brd_references
 
 ARTIFACTS = ['requirement.md','evidence.md','work-breakdown.md','estimation.md',
              'risks.md','traceability.md','assessment.md']
@@ -34,6 +35,8 @@ def validate(root, directory, planning=False):
         ac=index(req['acceptance_criteria'],'acceptance criteria')
         fr=index(req['functional_requirements'],'functional requirements')
         questions=index(req['questions'],'questions')
+        errors.extend(validate_brd_references(root, req, data['traceability.md'], questions,
+                                             planning or bool(assess.get('ready_for_planning'))))
         packages=data['work-breakdown.md']['work_packages']; wp=index(packages,'work packages')
         estimates=index(data['estimation.md']['estimates'],'estimates')
         risks=index(data['risks.md']['risks'],'risks')
@@ -63,6 +66,14 @@ def validate(root, directory, planning=False):
             for field in ['path','source_revision','observed_at','claim']:
                 require(bool(e.get(field)),f'{e["id"]}: missing {field}')
             require(e['state'] in ['CONFIRMED','ASSUMED','UNKNOWN'],f'{e["id"]}: invalid evidence state')
+            if sources.get(e['source_id'], {}).get('kind') == 'brd':
+                docs=index(req.get('source_documents', []), 'source_documents')
+                doc=docs.get(e['source_id'])
+                require(doc is not None, f'{e["id"]}: BRD evidence needs a captured source document')
+                if doc:
+                    require(e['source_revision'] == doc['source_revision'], f'{e["id"]}: stale BRD evidence revision')
+                    expected_paths={doc['path']} | {doc['path']+'#'+item for item in doc['item_ids']} | {a['path'] for a in doc['assets']}
+                    require(e['path'] in expected_paths, f'{e["id"]}: invalid BRD evidence path or item')
         for fact in req['facts']:
             require(fact['state'] in ['CONFIRMED','ASSUMED','UNKNOWN'],'Invalid fact state')
             require(bool(fact.get('evidence_ids')) or bool(fact.get('owner')),'Fact needs evidence or assumption owner')
@@ -170,6 +181,10 @@ def main():
         if any(part.startswith('.') for part in path.relative_to(bundle).parts): continue
         try: check_note(path, bundle)
         except Exception as exc: failures.append(f'{path.relative_to(args.root)}: {exc}')
+    for directory in (bundle/'intake').glob('BRD-*'):
+        if not directory.is_dir(): continue
+        try: read_brd(args.root, (directory/'brd.md').resolve(), allow_empty=True)
+        except Exception as exc: failures.append(f'{directory.name}: {exc}')
     # Native host / pipeline settings keep their required YAML format.
     for path in sorted(set(args.root.rglob('*.yaml')) | set(args.root.rglob('*.yml'))):
         if any(part in {'.venv', '.git', '.local', '.obsidian', '.trash'} for part in path.parts): continue

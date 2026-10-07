@@ -12,6 +12,9 @@ description: Assess changes to scope, capacity, dependencies or project baseline
 2. Write vault/requirements/<id>/changes/CR-xx.md using vault/templates/change-request.md: trigger, before/after,
    impacted AC/WP, estimate/schedule delta, options, risks, decision owner and decision status.
 3. Re-run only invalidated evidence, impact, WBS, estimates and risks. Preserve completed actuals.
+   For BRD or attachment changes, use vault/docs/brd-intake.md to compare original IDs and snapshots.
+   Run scripts/refresh_brd.py --requirement <REQ-ID> only on a draft assessment. Reconcile added/removed
+   items, stale evidence and image observations. Never refresh a baseline/closed requirement in place.
 4. Reforecast using remaining effort with an explicit as-of date; the V1 schedule script schedules full WBS
    from scratch and MUST NOT be presented as an actuals-aware reforecast. Use a separate remaining-work
    assessment or a clearly documented manual forecast until an actuals-aware engine is added.

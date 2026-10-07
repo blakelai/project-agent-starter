@@ -111,6 +111,8 @@ measurement source。Ticket elapsed duration 或 story points 不等於 actual e
 | change-control | Scope / capacity / dependency delta 與 superseding plan |
 
 執行 `python scripts/init_requirement.py <REQ-ID>` 建立 intake；工具拒絕覆寫已有需求。
+若已有使用者 BRD，先依 [BRD 流程](brd-intake.md) 建立原始文件，再於初始化加上 `--source` 路徑。
+Agent 先閱讀原文、表格及圖片，再建立 FR 與原始條目的追蹤關係；來源有變更時重新評估。
 requirement.md 的結構化區塊為 IDs / facts / AC / questions 的權威，正文補充背景與理由；不另存 YAML 原稿。
 Agent 讀 AGENTS.md，依 need 載入相關 Skills。Different host 的自動發現與權限要實測；必要時明確讀取 SKILL.md。
 

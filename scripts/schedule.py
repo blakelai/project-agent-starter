@@ -84,6 +84,10 @@ def main():
            'historical_delivery':args.root/'vault/planning/historical-delivery.md',
            'estimation_rules':args.root/'vault/planning/estimation-rules.md',
            'work_types':args.root/'vault/planning/work-types.md'}
+    for doc in load(paths['requirement']).get('source_documents', []):
+        paths['brd:'+doc['id']]=args.root/doc['path']
+        for asset in doc['assets']:
+            paths['asset:'+asset['path']]=args.root/asset['path']
     calendar=load(paths['calendar']); start=day(args.start or calendar['start_date'])
     try:
         result=compute(load(paths['work_breakdown'])['work_packages'],load(paths['estimation'])['estimates'],
