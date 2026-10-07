@@ -18,4 +18,8 @@ description: Review architecture alternatives and document project decisions. Us
 6. Feed required implementation and validation work into WBS, and material uncertainty into risks/questions.
 7. Keep recommendations proposed until the authorized decision is evidenced. Reuse decisions already provided.
 
-For substantial decisions use templates/adr.md. This is a scoped architecture review, not a code implementation step.
+For substantial decisions use vault/templates/adr.md. This is a scoped architecture review, not a code implementation step.
+
+## OKF editing contract
+
+Read `vault/docs/okf-profile.md`. Edit project knowledge under `vault/` as OKF Markdown. Structured facts live in the single marked YAML block in each Project Data note; preserve its markers, unknown fields, OKF frontmatter and surrounding prose. Update semantic body links when adding relationships. Frontmatter `status` is the knowledge lifecycle; project workflow status remains inside the data block. Commands run from the repository root.

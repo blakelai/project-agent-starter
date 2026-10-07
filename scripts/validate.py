@@ -2,9 +2,10 @@
 import argparse
 from pathlib import Path
 from common import ROOT, load, day, number, requirement_dir, index, topological
+from okf import check_note
 
-ARTIFACTS = ['requirement.yaml','evidence.yaml','work-breakdown.yaml','estimation.yaml',
-             'risks.yaml','traceability.yaml','assessment.yaml']
+ARTIFACTS = ['requirement.md','evidence.md','work-breakdown.md','estimation.md',
+             'risks.md','traceability.md','assessment.md']
 
 def validate(root, directory, planning=False):
     errors = []
@@ -14,6 +15,7 @@ def validate(root, directory, planning=False):
     data = {}
     for filename in ARTIFACTS:
         try:
+            check_note(directory/filename, root/'vault')
             data[filename] = load(directory/filename)
             require(isinstance(data[filename],dict), f'{filename}: expected mapping')
             require(data[filename].get('schema_version') == 1, f'{filename}: unsupported schema')
@@ -22,26 +24,26 @@ def validate(root, directory, planning=False):
     if errors:
         return errors
     try:
-        req=data['requirement.yaml']; assess=data['assessment.yaml']
+        req=data['requirement.md']; assess=data['assessment.md']
         require(req['id'] == directory.name,'Requirement ID must match directory')
         require(req['status'] in ['intake','clarified','assessed','baseline','closed'],'Invalid requirement status')
         for field in ['goal','actors','scope','non_goals','constraints','facts','questions','functional_requirements','acceptance_criteria']:
             require(field in req, f'Requirement missing {field}')
-        sources=index(load(root/'knowledge/sources.yaml')['sources'],'sources')
-        evidence=index(data['evidence.yaml']['evidence'],'evidence')
+        sources=index(load(root/'vault/knowledge/sources.md')['sources'],'sources')
+        evidence=index(data['evidence.md']['evidence'],'evidence')
         ac=index(req['acceptance_criteria'],'acceptance criteria')
         fr=index(req['functional_requirements'],'functional requirements')
         questions=index(req['questions'],'questions')
-        packages=data['work-breakdown.yaml']['work_packages']; wp=index(packages,'work packages')
-        estimates=index(data['estimation.yaml']['estimates'],'estimates')
-        risks=index(data['risks.yaml']['risks'],'risks')
-        historical=index(load(root/'planning/historical-delivery.yaml')['samples'],'historical samples')
-        types=load(root/'planning/work-types.yaml')['work_types']
-        people_data=load(root/'planning/people.yaml')
+        packages=data['work-breakdown.md']['work_packages']; wp=index(packages,'work packages')
+        estimates=index(data['estimation.md']['estimates'],'estimates')
+        risks=index(data['risks.md']['risks'],'risks')
+        historical=index(load(root/'vault/planning/historical-delivery.md')['samples'],'historical samples')
+        types=load(root/'vault/planning/work-types.md')['work_types']
+        people_data=load(root/'vault/planning/people.md')
         people=index(people_data['people'],'people')
-        capacity=load(root/'planning/capacity.yaml'); calendar=load(root/'planning/calendar.yaml')
+        capacity=load(root/'vault/planning/capacity.md'); calendar=load(root/'vault/planning/calendar.md')
         if planning and not req.get('synthetic',False):
-            project=load(root/'config/project.yaml')
+            project=load(root/'vault/config/project.md')
             require(bool(project.get('owner')) and 'REPLACE_' not in project['owner'],'Real planning needs a configured project owner')
             require(not any(x.get('synthetic',False) for x in [people_data,capacity,calendar]),'Real planning cannot use synthetic people/capacity/calendar')
             require(not any(e.get('synthetic',False) for e in evidence.values()),'Real planning cannot use synthetic evidence')
@@ -102,7 +104,7 @@ def validate(root, directory, planning=False):
             refs=e['historical_refs']
             require(set(refs)<=historical.keys(),f'{identifier}: unknown historical reference')
             if e['basis']=='historical-range':
-                minimum=load(root/'planning/estimation-rules.yaml')['minimum_analogues']
+                minimum=load(root/'vault/planning/estimation-rules.md')['minimum_analogues']
                 require(len(set(refs))>=minimum,f'{identifier}: historical basis needs at least {minimum} distinct references')
             if not req.get('synthetic',False):
                 require(not any(historical[h].get('synthetic',False) for h in refs if h in historical),f'{identifier}: synthetic history cannot estimate a real project')
@@ -117,7 +119,7 @@ def validate(root, directory, planning=False):
                 require(any(r['id'] in e.get('risk_ids',[]) for e in estimates.values()),f'{r["id"]}: included risk has no estimate mapping')
             if r['treatment']=='calendar-gate':
                 require(any(wp[w].get('not_before') for w in r['affected_work'] if w in wp),f'{r["id"]}: calendar risk has no not_before gate')
-        links=data['traceability.yaml']['links']; coverage=set()
+        links=data['traceability.md']['links']; coverage=set()
         for link in links:
             aid=link['acceptance_id']; coverage.add(aid)
             require(aid in ac,'Unknown traceability AC')
@@ -159,17 +161,24 @@ def main():
     group.add_argument('--all',action='store_true'); group.add_argument('--requirement')
     parser.add_argument('--planning',action='store_true')
     args=parser.parse_args()
-    dirs=sorted((args.root/'requirements').glob('REQ-*')) if args.all else [requirement_dir(args.root,args.requirement)]
+    dirs=sorted((args.root/'vault/requirements').glob('REQ-*')) if args.all else [requirement_dir(args.root,args.requirement)]
     failures=[]
-    # Parse every YAML as a basic repo-wide syntax check, including Skill metadata.
-    for path in args.root.rglob('*.yaml'):
-        if '.venv' in path.parts or '.git' in path.parts: continue
+    bundle = args.root/'vault'
+    if not (bundle/'index.md').is_file():
+        failures.append('Missing vault/index.md OKF entry point')
+    for path in bundle.rglob('*.md'):
+        if any(part.startswith('.') for part in path.relative_to(bundle).parts): continue
+        try: check_note(path, bundle)
+        except Exception as exc: failures.append(f'{path.relative_to(args.root)}: {exc}')
+    # Native host / pipeline settings keep their required YAML format.
+    for path in sorted(set(args.root.rglob('*.yaml')) | set(args.root.rglob('*.yml'))):
+        if any(part in {'.venv', '.git', '.local', '.obsidian', '.trash'} for part in path.parts): continue
         try: load(path)
         except Exception as exc: failures.append(f'{path.relative_to(args.root)}: {exc}')
     for directory in dirs:
         failures += [f'{directory.name}: {e}' for e in validate(args.root,directory,args.planning)]
     if failures:
         print('\n'.join(f'ERROR {e}' for e in failures)); return 1
-    print(f'OK: YAML syntax and {len(dirs)} requirement artifact sets'); return 0
+    print(f'OK: OKF project profile, native YAML syntax and {len(dirs)} requirement artifact sets'); return 0
 if __name__=='__main__':
     raise SystemExit(main())

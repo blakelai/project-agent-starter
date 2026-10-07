@@ -8,7 +8,7 @@ description: Create a resource-constrained schedule from validated WBS, effort r
 # Project Planning
 
 
-1. Read assessment.yaml and run python scripts/validate.py --requirement <REQ-ID> --planning.
+1. Read assessment.md and run python scripts/validate.py --requirement <REQ-ID> --planning.
 2. If blocked, document readiness issues and continue independent analysis; do not produce a commitment date.
 3. Confirm assignments, net capacity validity window, leave, holidays, external not_before dates and chosen start.
 4. Run python scripts/schedule.py --requirement <REQ-ID> --scenario expected and again with --scenario high.
@@ -18,4 +18,8 @@ description: Create a resource-constrained schedule from validated WBS, effort r
 7. Explain the greedy single-person-per-WP/full-day model. Do not claim an optimal schedule or label the
    precedence-only chain as a resource-constrained critical path.
 8. Record baseline only after explicit project-owner confirmation and copy exact inputs/output hashes into
-   projects/<project-id>/baseline/<version>. Keep draft plans reviewable without requiring routine approvals.
+   vault/projects/<project-id>/baseline/<version>. Keep draft plans reviewable without requiring routine approvals.
+
+## OKF editing contract
+
+Read `vault/docs/okf-profile.md`. Edit project knowledge under `vault/` as OKF Markdown. Structured facts live in the single marked YAML block in each Project Data note; preserve its markers, unknown fields, OKF frontmatter and surrounding prose. Update semantic body links when adding relationships. Frontmatter `status` is the knowledge lifecycle; project workflow status remains inside the data block. Commands run from the repository root.

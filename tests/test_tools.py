@@ -11,6 +11,8 @@ sys.path.insert(0,str(ROOT/'scripts'))
 from common import load, write, allocate, topological
 from schedule import compute
 from validate import validate
+from okf import check_note, split_note
+from common import digest
 
 class CalculationTests(unittest.TestCase):
     def setUp(self):
@@ -48,38 +50,38 @@ class ArtifactTests(unittest.TestCase):
     def setUp(self):
         self.tmp=tempfile.TemporaryDirectory(); self.root=Path(self.tmp.name)/'repo'
         shutil.copytree(ROOT,self.root,ignore=shutil.ignore_patterns('.git','.venv','__pycache__'))
-        self.req=self.root/'requirements/REQ-TEST'
-        shutil.copytree(self.root/'templates/requirement',self.req)
+        self.req=self.root/'vault/requirements/REQ-TEST'
+        shutil.copytree(self.root/'vault/templates/requirement',self.req)
         for path in self.req.rglob('*'):
             if path.is_file():
                 path.write_text(path.read_text().replace('{{REQ_ID}}','REQ-TEST'))
         # Test inputs exist only in this isolated temporary directory, not as repository examples.
-        req=load(self.req/'requirement.yaml')
+        req=load(self.req/'requirement.md')
         req.update(status='assessed',goal='Validate a delivered capability',
                    functional_requirements=[{'id':'FR-01','statement':'Deliver required behavior'}],
                    acceptance_criteria=[{'id':'AC-01','requirement_ids':['FR-01'],'statement':'Expected observable outcome'}],
                    questions=[])
-        write(self.req/'requirement.yaml',req)
-        write(self.root/'config/project.yaml',{'schema_version':1,'owner':'test-owner'})
-        write(self.root/'planning/people.yaml',{'schema_version':1,'people':[{'id':'worker','skills':['engineering']},{'id':'other','skills':[]}]})
-        write(self.root/'planning/capacity.yaml',{'schema_version':1,'valid_from':'2026-10-05','valid_until':'2026-11-30',
+        write(self.req/'requirement.md',req)
+        write(self.root/'vault/config/project.md',{'schema_version':1,'owner':'test-owner'})
+        write(self.root/'vault/planning/people.md',{'schema_version':1,'people':[{'id':'worker','skills':['engineering']},{'id':'other','skills':[]}]})
+        write(self.root/'vault/planning/capacity.md',{'schema_version':1,'valid_from':'2026-10-05','valid_until':'2026-11-30',
               'people':{'worker':{'fraction':1.0,'leave':[]},'other':{'fraction':1.0,'leave':[]}}})
-        write(self.root/'planning/calendar.yaml',{'schema_version':1,'start_date':'2026-10-05','work_weekdays':[0,1,2,3,4],'holidays':[]})
-        write(self.root/'planning/historical-delivery.yaml',{'schema_version':1,'samples':[{'id':'H-01','synthetic':True}]})
-        write(self.req/'work-breakdown.yaml',{'schema_version':1,'work_packages':[{'id':'WP-01','name':'Delivery',
+        write(self.root/'vault/planning/calendar.md',{'schema_version':1,'start_date':'2026-10-05','work_weekdays':[0,1,2,3,4],'holidays':[]})
+        write(self.root/'vault/planning/historical-delivery.md',{'schema_version':1,'samples':[{'id':'H-01','synthetic':True}]})
+        write(self.req/'work-breakdown.md',{'schema_version':1,'work_packages':[{'id':'WP-01','name':'Delivery',
               'work_type':'domain-model-change','complexity':'medium','deliverable':'Delivered capability','done_when':'AC-01 verified',
               'acceptance_ids':['AC-01'],'evidence_ids':[],'priority':1,'depends_on':[],
               'skills':['engineering'],'assigned_to':'worker','not_before':None}]})
-        write(self.req/'estimation.yaml',{'schema_version':1,'estimates':[{'id':'WP-01','basis':'expert-judgement',
+        write(self.req/'estimation.md',{'schema_version':1,'estimates':[{'id':'WP-01','basis':'expert-judgement',
               'historical_refs':[],'confidence':'low','rationale':'Bounded effort for tool validation',
               'effort_pd':{'low':1,'expected':2,'high':3},'risk_ids':[]}]})
-        write(self.req/'traceability.yaml',{'schema_version':1,'links':[{'acceptance_id':'AC-01',
+        write(self.req/'traceability.md',{'schema_version':1,'links':[{'acceptance_id':'AC-01',
               'work_packages':['WP-01'],'test_status':'planned','test_evidence':None}]})
-        write(self.req/'assessment.yaml',{'schema_version':1,'status':'draft','ready_for_planning':True,
+        write(self.req/'assessment.md',{'schema_version':1,'status':'draft','ready_for_planning':True,
               'reviewed_by':'test-reviewer','reviewed_at':'2026-10-04','assumptions':['Fixed tool-validation capacity'],
               'blockers':[],'owner_confirmation':None})
-        self.blocked=self.root/'requirements/REQ-BLOCKED'
-        shutil.copytree(self.root/'templates/requirement',self.blocked)
+        self.blocked=self.root/'vault/requirements/REQ-BLOCKED'
+        shutil.copytree(self.root/'vault/templates/requirement',self.blocked)
         for path in self.blocked.rglob('*'):
             if path.is_file():
                 path.write_text(path.read_text().replace('{{REQ_ID}}','REQ-BLOCKED'))
@@ -89,43 +91,71 @@ class ArtifactTests(unittest.TestCase):
         errors=validate(self.root,self.blocked,True)
         self.assertTrue(any('blocking' in e.lower() for e in errors))
     def test_synthetic_history_cannot_estimate_real_work(self):
-        data=load(self.req/'estimation.yaml'); data['estimates'][0]['historical_refs']=['H-01']; write(self.req/'estimation.yaml',data)
+        data=load(self.req/'estimation.md'); data['estimates'][0]['historical_refs']=['H-01']; write(self.req/'estimation.md',data)
         self.assertTrue(any('synthetic history' in e for e in validate(self.root,self.req)))
     def test_unknown_reference_and_unordered_estimates_rejected(self):
-        data=load(self.req/'estimation.yaml'); data['estimates'][0]['historical_refs']=['NONEXISTENT']
-        data['estimates'][0]['effort_pd']['low']=99; write(self.req/'estimation.yaml',data)
+        data=load(self.req/'estimation.md'); data['estimates'][0]['historical_refs']=['NONEXISTENT']
+        data['estimates'][0]['effort_pd']['low']=99; write(self.req/'estimation.md',data)
         errors=validate(self.root,self.req)
         self.assertTrue(any('historical reference' in e for e in errors))
         self.assertTrue(any('unordered' in e for e in errors))
     def test_wrong_skill_assignment_rejected(self):
-        data=load(self.req/'work-breakdown.yaml'); data['work_packages'][0]['assigned_to']='other'; write(self.req/'work-breakdown.yaml',data)
+        data=load(self.req/'work-breakdown.md'); data['work_packages'][0]['assigned_to']='other'; write(self.req/'work-breakdown.md',data)
         self.assertTrue(any('lacks required skills' in e for e in validate(self.root,self.req,True)))
     def test_real_planning_rejects_synthetic_resources(self):
-        req=load(self.req/'requirement.yaml'); req['synthetic']=False; write(self.req/'requirement.yaml',req)
-        data=load(self.req/'estimation.yaml')
+        req=load(self.req/'requirement.md'); req['synthetic']=False; write(self.req/'requirement.md',req)
+        data=load(self.req/'estimation.md')
         for e in data['estimates']:
             e['basis']='expert-judgement'; e['historical_refs']=[]
-        write(self.req/'estimation.yaml',data)
-        capacity=load(self.root/'planning/capacity.yaml'); capacity['synthetic']=True; write(self.root/'planning/capacity.yaml',capacity)
-        write(self.root/'config/project.yaml',{'schema_version':1,'owner':None})
+        write(self.req/'estimation.md',data)
+        capacity=load(self.root/'vault/planning/capacity.md'); capacity['synthetic']=True; write(self.root/'vault/planning/capacity.md',capacity)
+        write(self.root/'vault/config/project.md',{'schema_version':1,'owner':None})
         errors=validate(self.root,self.req,True)
         self.assertTrue(any('synthetic people/capacity/calendar' in e for e in errors))
         self.assertTrue(any('configured project owner' in e for e in errors))
     def test_baseline_cannot_lack_confirmation(self):
-        data=load(self.req/'assessment.yaml'); data['status']='baseline'; write(self.req/'assessment.yaml',data)
+        data=load(self.req/'assessment.md'); data['status']='baseline'; write(self.req/'assessment.md',data)
         self.assertTrue(any('owner_confirmation' in e for e in validate(self.root,self.req)))
     def test_schedule_cli_refuses_blocker_without_dates(self):
         result=subprocess.run([sys.executable,str(self.root/'scripts/schedule.py'),'--requirement','REQ-BLOCKED'],capture_output=True,text=True)
         self.assertNotEqual(result.returncode,0)
-        self.assertFalse((self.blocked/'schedule-expected.yaml').exists())
+        self.assertFalse((self.blocked/'schedule-expected.md').exists())
     def test_intake_creation_and_no_overwrite(self):
         command=[sys.executable,str(self.root/'scripts/init_requirement.py'),'REQ-NEW']
         self.assertEqual(subprocess.run(command,capture_output=True).returncode,0)
-        self.assertEqual(validate(self.root,self.root/'requirements/REQ-NEW'),[])
+        self.assertEqual(validate(self.root,self.root/'vault/requirements/REQ-NEW'),[])
         self.assertNotEqual(subprocess.run(command,capture_output=True).returncode,0)
+        created = self.root/'vault/requirements/REQ-NEW'
+        self.assertIn('REQ-NEW', (created/'index.md').read_text())
+        self.assertIn('REQ-NEW/index.md', (created.parent/'index.md').read_text())
+        self.assertFalse(list(created.glob('*.yaml')))
+        for path in created.glob('*.md'):
+            check_note(path, self.root/'vault')
+    def test_markdown_schedule_matches_engine_and_tracks_edited_input(self):
+        command=[sys.executable,str(self.root/'scripts/schedule.py'),'--requirement','REQ-TEST']
+        for scenario, finish in [('expected','2026-10-06'), ('high','2026-10-07')]:
+            process=subprocess.run(command+['--scenario',scenario],capture_output=True,text=True)
+            self.assertEqual(process.returncode,0,process.stdout+process.stderr)
+            path=self.req/f'schedule-{scenario}.md'
+            result=load(path)
+            self.assertEqual(result['finish_date'],finish)
+            self.assertEqual(result['input_sha256']['estimation'],digest(self.req/'estimation.md'))
+            self.assertIn('| WP-01 | worker |',path.read_text())
+            self.assertEqual(split_note(path.read_text())[0]['type'],'Project Schedule')
+            check_note(path,self.root/'vault')
+        # A normal edit to the one authoritative Markdown source changes the computation.
+        data=load(self.req/'estimation.md')
+        data['estimates'][0]['effort_pd'].update(expected=4,high=5)
+        write(self.req/'estimation.md',data)
+        process=subprocess.run(command,capture_output=True,text=True)
+        self.assertEqual(process.returncode,0,process.stdout+process.stderr)
+        result=load(self.req/'schedule-expected.md')
+        self.assertEqual(result['finish_date'],'2026-10-08')
+        self.assertEqual(result['input_sha256']['estimation'],digest(self.req/'estimation.md'))
+        self.assertFalse(list(self.req.glob('*.yaml')))
     def test_unconfigured_intake_allowed_but_scheduling_blocked(self):
-        write(self.root/'planning/capacity.yaml',{'schema_version':1,'valid_from':None,'valid_until':None,'people':{}})
-        write(self.root/'planning/calendar.yaml',{'schema_version':1,'start_date':None,'work_weekdays':[],'holidays':[]})
+        write(self.root/'vault/planning/capacity.md',{'schema_version':1,'valid_from':None,'valid_until':None,'people':{}})
+        write(self.root/'vault/planning/calendar.md',{'schema_version':1,'start_date':None,'work_weekdays':[],'holidays':[]})
         self.assertEqual(validate(self.root,self.blocked),[])
         errors=validate(self.root,self.req,True)
         self.assertTrue(any('validity dates' in e for e in errors))

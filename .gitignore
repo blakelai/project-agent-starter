@@ -6,3 +6,7 @@ __pycache__/
 .env.*
 !.env.example
 .DS_Store
+
+# Per-user Obsidian UI state and local trash
+vault/.obsidian/
+vault/.trash/

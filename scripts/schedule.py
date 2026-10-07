@@ -1,9 +1,32 @@
 """Greedy feasible full-day schedule, not optimal RCPSP or a calibrated percentile forecast."""
 import argparse
 from pathlib import Path
-from datetime import timedelta
-from common import ROOT, load, write, day, index, topological, allocate, digest, requirement_dir
+from datetime import timedelta, datetime, timezone
+from common import ROOT, load, day, index, topological, allocate, digest, requirement_dir
 from validate import validate
+from okf import PROFILE, render_note, data_block, split_note, write_directory_index
+
+def save_report(target, result):
+    metadata = split_note(target.read_text(encoding='utf-8'))[0] if target.exists() else {}
+    metadata.pop('verified', None)  # A recomputation is not a renewed human verification.
+    metadata.update(type='Project Schedule', title=f'{result["scenario"]} 排程',
+                    description='由專案資料重算的排程情境與輸入雜湊。', status='draft',
+                    project_profile=PROFILE,
+                    generated={'by':'project-agent-scheduler/v1', 'at':datetime.now(timezone.utc).isoformat()})
+    def cell(value):
+        return str(value).replace('|', '\\|').replace('\n', ' ')
+    lines = [f'# {result["scenario"]} 排程', '',
+             '本頁由排程工具產生，重算時更新本文。修改需求、WBS、估算或規劃輸入後再重算。', '',
+             f'期間：{result["start_date"]} 至 {result["finish_date"]}；總工時：{result["total_effort_pd"]} PD。', '',
+             '| 工作包 | 負責人 | 開始 | 完成 | PD | 使用工作日 |',
+             '|---|---|---|---|---|---|']
+    for task in result['tasks']:
+        lines.append('| ' + ' | '.join(cell(task[k]) for k in ['id','assigned_to','start','finish','effort_pd','workdays_used']) + ' |')
+    lines += ['', '情境結果不代表交付百分位；此工具使用單一負責人、整日保留的 greedy 排程模型。', '',
+              '## 關聯', '', '[工作分解](work-breakdown.md) · [工時估算](estimation.md) · '
+              '[容量](../../planning/capacity.md) · [日曆](../../planning/calendar.md) · [需求導覽](index.md)', '',
+              '## 計算結果與輸入雜湊', '', data_block(result)]
+    target.write_text(render_note(metadata, '\n'.join(lines)), encoding='utf-8')
 
 def compute(packages, estimates, capacity, calendar, scenario, start):
     by_id=index(packages,'work packages'); est=index(estimates,'estimates')
@@ -52,16 +75,22 @@ def main():
     directory=requirement_dir(args.root,args.requirement)
     errors=validate(args.root,directory,planning=True)
     if errors: raise SystemExit('\n'.join(errors))
-    paths={'work_breakdown':directory/'work-breakdown.yaml','estimation':directory/'estimation.yaml',
-           'capacity':args.root/'planning/capacity.yaml','calendar':args.root/'planning/calendar.yaml',
-           'requirement':directory/'requirement.yaml','assessment':directory/'assessment.yaml',
-           'people':args.root/'planning/people.yaml','risks':directory/'risks.yaml'}
+    paths={'work_breakdown':directory/'work-breakdown.md','estimation':directory/'estimation.md',
+           'capacity':args.root/'vault/planning/capacity.md','calendar':args.root/'vault/planning/calendar.md',
+           'requirement':directory/'requirement.md','assessment':directory/'assessment.md',
+           'people':args.root/'vault/planning/people.md','risks':directory/'risks.md',
+           'evidence':directory/'evidence.md','traceability':directory/'traceability.md',
+           'sources':args.root/'vault/knowledge/sources.md','project':args.root/'vault/config/project.md',
+           'historical_delivery':args.root/'vault/planning/historical-delivery.md',
+           'estimation_rules':args.root/'vault/planning/estimation-rules.md',
+           'work_types':args.root/'vault/planning/work-types.md'}
     calendar=load(paths['calendar']); start=day(args.start or calendar['start_date'])
     try:
         result=compute(load(paths['work_breakdown'])['work_packages'],load(paths['estimation'])['estimates'],
                        load(paths['capacity']),calendar,args.scenario,start)
     except ValueError as exc: raise SystemExit(str(exc))
     result['input_sha256']={key:digest(path) for key,path in paths.items()}
-    target=directory/f'schedule-{args.scenario}.yaml'; write(target,result)
+    target=directory/f'schedule-{args.scenario}.md'; save_report(target,result)
+    write_directory_index(directory, args.requirement)
     print(f'{args.scenario}: {result["total_effort_pd"]} PD; {start} through {result["finish_date"]}; wrote {target.name}')
 if __name__=='__main__': main()
