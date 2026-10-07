@@ -9,6 +9,9 @@ status: draft
 
 These are original repository-local workflows, not installed personal skills.
 
+- `domain-terminology` — Maintain context-scoped domain vocabulary, record human clarification and confirmation,
+  and track affected requirements. Use for unknown terms, acronyms, translations, model mappings or changed definitions.
+
 - `knowledge-bootstrap` — Initialize project knowledge routing from existing OpenWiki repository wikis. Use for new project repositories, adding sources, missing retrieval, or stale source evidence.
 - `requirement-analysis` — Clarify incoming project requirements into goals, scope and testable acceptance criteria. Use for new requirements, vague stakeholder requests, or scope refinement.
 - `impact-analysis` — Analyze project requirement effects across repository wikis and original code. Use for behavior, domain, API, event, schema, integration or compatibility changes.

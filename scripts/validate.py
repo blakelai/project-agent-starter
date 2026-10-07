@@ -4,6 +4,7 @@ from pathlib import Path
 from common import ROOT, load, day, number, requirement_dir, index, topological
 from okf import check_note
 from brd import read_brd, validate_brd_references
+from glossary import validate_catalog, validate_references
 
 ARTIFACTS = ['requirement.md','evidence.md','work-breakdown.md','estimation.md',
              'risks.md','traceability.md','assessment.md']
@@ -37,6 +38,7 @@ def validate(root, directory, planning=False):
         questions=index(req['questions'],'questions')
         errors.extend(validate_brd_references(root, req, data['traceability.md'], questions,
                                              planning or bool(assess.get('ready_for_planning'))))
+        errors.extend(validate_references(root, req, planning or bool(assess.get('ready_for_planning'))))
         packages=data['work-breakdown.md']['work_packages']; wp=index(packages,'work packages')
         estimates=index(data['estimation.md']['estimates'],'estimates')
         risks=index(data['risks.md']['risks'],'risks')
@@ -174,6 +176,7 @@ def main():
     args=parser.parse_args()
     dirs=sorted((args.root/'vault/requirements').glob('REQ-*')) if args.all else [requirement_dir(args.root,args.requirement)]
     failures=[]
+    failures.extend(validate_catalog(args.root))
     bundle = args.root/'vault'
     if not (bundle/'index.md').is_file():
         failures.append('Missing vault/index.md OKF entry point')

@@ -5,6 +5,7 @@
 - [BRD 原始需求匯入與分析](brd-intake.md) — 手動整理原文、圖片、來源引用與涵蓋檢查。
 
 - [Artifact contract v1](data-contract.md) — Artifact contract v1。
+- [領域詞彙、釐清與確認](domain-terminology.md) — 共用概念、上下文、人類確認與需求影響。
 - [HVE Core patterns worth adopting](hve-reference.md) — HVE Core patterns worth adopting。
 - [以既有 OpenWiki 初始化 Project Repository](initialization-guide.zh-TW.md) — 以既有 OpenWiki 初始化 Project Repository。
 - [在 Obsidian 使用專案 Repository](obsidian-guide.md) — 開啟 Vault、編輯 OKF 筆記、建立需求與重算排程。

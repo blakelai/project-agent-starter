@@ -60,7 +60,8 @@ class ArtifactTests(unittest.TestCase):
         req.update(status='assessed',goal='Validate a delivered capability',
                    functional_requirements=[{'id':'FR-01','statement':'Deliver required behavior'}],
                    acceptance_criteria=[{'id':'AC-01','requirement_ids':['FR-01'],'statement':'Expected observable outcome'}],
-                   questions=[])
+                   questions=[], terminology_review={'status':'reviewed','by':'test-reviewer',
+                       'at':'2026-10-07T12:00:00+08:00','notes':'No domain terms in this synthetic fixture'})
         write(self.req/'requirement.md',req)
         write(self.root/'vault/config/project.md',{'schema_version':1,'owner':'test-owner'})
         write(self.root/'vault/planning/people.md',{'schema_version':1,'people':[{'id':'worker','skills':['engineering']},{'id':'other','skills':[]}]})

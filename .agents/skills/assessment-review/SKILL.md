@@ -7,6 +7,11 @@ description: Review readiness and consistency of project assessments before sche
 
 # Assessment Review
 
+Read vault/docs/domain-terminology.md. Verify terminology_review, per-term reviews, human confirmation
+revisions and shared-question links. Confirmed meanings must match the requirement's context and current
+definition/assets; unknown meanings cannot be bypassed with ASSUMED or background usage. A global answer
+requires a separate requirement-impact review. A validator pass cannot prove human identity or semantic completeness.
+
 
 1. Read all artifacts for the requirement, the data contract and relevant planning facts.
 2. Reconcile AC coverage, contract consumers, evidence revisions, estimate basis, dependencies, skill capacity,

@@ -7,6 +7,11 @@ description: Review architecture alternatives and document project decisions. Us
 
 # Architecture Review
 
+Read the requirement's term_refs and vault/docs/domain-terminology.md before choosing models and contracts.
+Use confirmed meanings within their contexts; route ambiguity to domain-terminology. Record current/proposed
+system_mappings with source revisions or decision references, separately from business definitions. Do not
+force every term into an aggregate/entity/table or redefine business meaning to match existing code.
+
 
 1. Read the clarified requirement, impact analysis, source evidence and relevant existing ADRs.
 2. Compare two viable alternatives (or explain why only one is viable), including operational consequences.

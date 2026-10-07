@@ -64,6 +64,10 @@ Agent 填寫模板時套用本設定；對工具產生的排程另寫指定語�
 
 ## 連結、模板與產物
 
+領域詞彙採 [術語規約](domain-terminology.md)：業務正文放在單一 `term-definition` 標記區塊內，
+以支援 Markdown 表格、圖片與確切版本確認；結構化資料仍放在同一頁的唯一 `project-data`。
+`confirmed` 是資料區塊的業務確認狀態，不可用 OKF frontmatter 的 stable/verified 代替人類確認。
+
 使用者原始 BRD 依 [BRD 規約](brd-intake.md) 保存在 `intake/`，只需要 OKF frontmatter 與一般 Markdown
 正文，不要求將原文轉成 project-data。引用的圖片維持二進位附件；分析快照與涵蓋資料才使用 project-data。
 

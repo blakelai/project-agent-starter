@@ -25,6 +25,14 @@ Evaluate <REQ-ID>: <requirement statement>. Apply the assessment workflow with a
 and planning facts. Clarify acceptance, failure semantics, external ownership and readiness. Produce useful
 independent analysis while questions remain open; schedule only after blocking questions are resolved.
 
+## Domain terminology
+
+Apply domain-terminology to <REQ-ID> and its BRD. Read original text, tables and images. Look up relevant
+context-scoped terms; register unknown or conflicting meanings with source quotes and targeted human
+questions. Do not invent definitions or translations. Link shared questions and term revisions, produce
+the clarification/impact report, and continue independent analysis. Record confirmation only when the
+human has explicitly accepted that exact definition version; then reassess each affected requirement.
+
 ## Backlog draft
 
 Apply backlog-handoff to <REQ-ID> for <tracker/project>. Draft the hierarchy, AC, dependencies, effort

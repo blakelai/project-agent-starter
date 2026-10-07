@@ -122,3 +122,9 @@ baseline 或 closed 的需求會拒絕 refresh，應先經 change-control 建立
 原始條目未處理、圖像未判讀、來源過期或引用不一致時不能排程。排程輸出另保存 BRD 與圖片輸入 hashes。
 
 [原始需求目錄](../intake/index.md) · [資料契約](data-contract.md) · [文件目錄](index.md)
+
+## 專業術語與概念
+
+分析文字、表格及圖片時，同時套用 [領域詞彙流程](domain-terminology.md)。引用既有已確認定義，
+不明確的用語先建立詞彙條目與共用問題，交由人類釐清；不要改寫原始 BRD 或猜測英文譯名。
+BRD 重新擷取會把術語檢閱也改回 pending，需確認新增概念、原有用語及上下文是否改變。

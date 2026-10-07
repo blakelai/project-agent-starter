@@ -3,6 +3,7 @@ import argparse
 from pathlib import Path
 from brd import capture_brd, pending_coverage, registered_sources
 from common import ROOT, load, write, requirement_dir
+from terminology import pending_review
 
 
 def refresh(root, directory):
@@ -37,6 +38,9 @@ def refresh(root, directory):
             rows.append(row)
     # Retain removed-item rows and FR/evidence references: the reviewer must resolve them explicitly.
     req.update(source_documents=updated, status='intake')
+    req['terminology_review'] = pending_review()
+    for ref in req.get('term_refs', []):
+        ref['review'] = pending_review()
     assess.update(ready_for_planning=False, reviewed_by=None, reviewed_at=None, owner_confirmation=None)
     assess.setdefault('blockers', []).append('BRD sources changed; reassess coverage, images and evidence: ' + ', '.join(sorted(changed)))
     write(directory/'requirement.md', req)

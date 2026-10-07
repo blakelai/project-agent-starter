@@ -1,6 +1,6 @@
 # OpenWiki Project Agent Starter
 
-用既有 Repository Wiki、12 個 Repository-local Skills 與可重算的排程工具，管理需求評估和交付。
+用既有 Repository Wiki、13 個 Repository-local Skills 與可重算的排程工具，管理需求評估和交付。
 所有日常專案內容集中在 **[vault/index.md](vault/index.md)**，採用 **OKF v0.2 Markdown**。
 在 Obsidian 選 **Open folder as vault**，開啟 Repository 的 `vault/`，再開啟 `index.md`。
 也可使用其他 Markdown 編輯器或 GitHub 閱讀。骨架保留空白資料與模板，沒有填入範例專案。
@@ -74,6 +74,9 @@ python scripts/init_requirement.py <REQ-ID> --source vault/intake/<BRD-ID>/brd.m
 詳見 [BRD 操作與資料契約](vault/docs/brd-intake.md)。
 
 ## 文件與目錄
+
+- [領域詞彙庫](vault/knowledge/glossary/index.md) 與 [術語操作指南](vault/docs/domain-terminology.md)：
+  中英名稱、上下文、詳細定義、系統對應、人類釐清及版本確認；未知詞義不由 Agent 推測。
 
 - [初始化指南](vault/docs/initialization-guide.zh-TW.md)：完整中文導入流程。
 - [OpenWiki 串接](vault/docs/openwiki-integration.md)：routing、workspace、retrieval 與 freshness。

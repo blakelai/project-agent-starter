@@ -8,7 +8,7 @@ status: draft
 # 以既有 OpenWiki 初始化 Project Repository
 
 本指南說明如何用已有的 Repository Wiki，建立獨立的需求評估與專案管理 Repository。
-骨架包含 12 個 Repository-local Skills、空白資料模板，以及可重算的驗證／排程工具。
+骨架包含 13 個 Repository-local Skills、空白資料模板，以及可重算的驗證／排程工具。
 專案內容位於 OKF `vault/`，可直接用 Obsidian 開啟；先讀 [Obsidian 操作](obsidian-guide.md) 與
 [OKF 規約](okf-profile.md)。本文 CLI 命令均從 Repository 根目錄執行。
 
@@ -173,6 +173,12 @@ Tool validation / tests 通過；baseline、risk、progress 與 change 的更新
 
 CI 範本在 ci/azure-pipelines.yml。Azure Repos Git 的 PR validation 透過 branch policy build validation；
 依團隊 pool、branches 與套件安裝政策調整。工具檢查不代表 claim 真實、estimate calibrated 或 owner approval 已驗證。
+
+## 建立共用領域詞彙
+
+需求分析前套用 domain-terminology，從 [領域詞彙庫](../knowledge/glossary/index.md) 找出適用的已確認概念。
+將未知詞義、上下文或譯名登錄為待釐清問題，交由人類補充；定義與系統實作證據分開維護。
+操作方式與準備度條件見 [術語指南](domain-terminology.md)。骨架沒有預填領域詞彙或上下文。
 
 ## 官方與本地參考
 

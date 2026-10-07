@@ -69,6 +69,13 @@ python scripts/schedule.py --requirement <REQ-ID> --scenario high
 舊 `.local/sources.yaml` 的映射資料需放入 `.local/sources.md` 的資料區塊，不能只改副檔名。
 CLI 的 `--root` 仍指 Repository 根目錄。
 
+## 編輯領域詞彙
+
+從 [詞彙首頁](../knowledge/glossary/index.md) 開啟概念頁。人類可在 term-definition 標記內補充
+業務說明、表格與圖片，在 project-data 填寫正式名稱、上下文與釐清答案。
+定義確認、需求引用及變更流程見 [術語操作指南](domain-terminology.md)。
+執行 `python scripts/terminology.py report` 更新索引與待釐清清單；報表不是答案的編輯來源。
+
 ## 參考
 
 - [OKF 規約](okf-profile.md) · [資料契約](data-contract.md) · [維運](operations.md)

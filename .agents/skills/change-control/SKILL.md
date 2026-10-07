@@ -7,6 +7,12 @@ description: Assess changes to scope, capacity, dependencies or project baseline
 
 # Change Control
 
+Include vocabulary definitions, contexts, aliases and attachments in change impact. Read
+vault/docs/domain-terminology.md; use terminology.py report to locate references and refresh only drafts.
+Reconfirm changed business definitions with the domain owner; reassess each affected requirement's meaning,
+acceptance and estimates. Preserve actuals, prior confirmations, and baseline term/context/asset snapshots.
+Refreshing revisions does not approve definitions or close local impact questions.
+
 
 1. Read existing baseline/assessment, progress actuals and the new requested change.
 2. Write vault/requirements/<id>/changes/CR-xx.md using vault/templates/change-request.md: trigger, before/after,

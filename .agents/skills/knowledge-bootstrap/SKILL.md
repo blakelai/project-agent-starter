@@ -7,6 +7,11 @@ description: Initialize project knowledge routing from existing OpenWiki reposit
 
 # Knowledge Bootstrap
 
+Read vault/docs/domain-terminology.md and inspect the project glossary when establishing domain routing.
+Register actual context boundaries from human input; leave unknown context null. Reuse approved concepts
+without copying their definitions into a second glossary. Wiki vocabulary and implementation names need
+explicit human clarification/confirmation before becoming project business definitions; record contradictions.
+
 
 1. Read vault/config/project.md, vault/knowledge/sources.md and vault/docs/data-contract.md.
 2. Confirm project boundary, source owners and required repositories. Keep URLs and logical IDs in

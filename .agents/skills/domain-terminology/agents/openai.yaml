@@ -1,0 +1,4 @@
+interface:
+  display_name: "領域詞彙管理"
+  short_description: "建立共用領域詞彙、登錄歧義並追蹤人類確認與需求引用版本"
+  default_prompt: "Use $domain-terminology to review domain terms, register ambiguities, and request human clarification without inventing definitions."

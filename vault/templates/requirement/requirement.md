@@ -39,6 +39,12 @@ id: '{{REQ_ID}}'
 synthetic: false
 status: intake
 source_documents: []
+term_refs: []
+terminology_review:
+  status: pending
+  by: null
+  at: null
+  notes: null
 goal: TO_CLARIFY
 actors: []
 scope: []
@@ -61,3 +67,6 @@ questions:
 [來源證據](evidence.md) · [影響分析](impact-analysis.md) · [驗收追蹤](traceability.md)
 
 [回到目錄](index.md)
+
+分析前先查詢 [領域詞彙庫](../../knowledge/glossary/index.md)。未釐清的詞義需登錄並交由人類確認，
+不得用 ASSUMED 代替定義。引用及準備度條件見 [術語規約](../../docs/domain-terminology.md)。

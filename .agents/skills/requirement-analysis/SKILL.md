@@ -7,6 +7,13 @@ description: Clarify incoming project requirements into goals, scope and testabl
 
 # Requirement Analysis
 
+Apply domain-terminology while reading inputs. Read vault/docs/domain-terminology.md; find terms by context,
+preferred names and aliases. Cite only valid human-confirmed meanings. Register ambiguous terms and unknown
+translations with source quotes and shared clarification questions, leaving definitions blank rather than
+marking a guess ASSUMED. Link term_refs to the BRD items/FRs they inform and link shared questions in questions.
+Record terminology_review, including a scoped no-terms-found conclusion when applicable. Definitions supplied
+by Wiki/code are evidence to discuss, not human approval. Keep independent analysis moving while meaning is blocked.
+
 
 1. Read vault/docs/brd-intake.md. Use scripts/init_requirement.py <REQ-ID> with one --source <BRD_PATH>
    per original BRD to create an intake without overwriting work. Without a BRD, use the existing blank intake.

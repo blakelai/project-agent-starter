@@ -6,5 +6,6 @@
 - [BRD 原始需求](brd.md) — 含標題、穩定編號與附件引用的空白原始文件。
 - [CR-xx — Proposed change](change-request.md) — CR-xx — Proposed change。
 - [待命名的知識頁](concept.md) — 請補上本頁用途。
+- [領域詞彙](term.md) — 空白定義、正式用語、來源、釐清問題與確認紀錄。
 - [requirement](requirement/index.md)
 - [Project status — YYYY-MM-DD](status-report.md) — Project status — YYYY-MM-DD。

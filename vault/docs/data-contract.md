@@ -51,6 +51,12 @@ Field names below refer to the data block unless explicitly called frontmatter.
   For captured BRDs, `source_coverage` accounts for every original item and agrees with FR source_refs.
   Dispositions are pending/analyzed/needs-clarification/deferred/excluded. See [the full contract](brd-intake.md).
 - `assessment.md`: readiness and explicit owner confirmation when establishing a baseline.
+- `vault/knowledge/glossary/`: context-scoped domain terms, shared questions, separately evidenced system
+  mappings, and human confirmation of exact business-definition revisions. See [terminology](domain-terminology.md).
+- `requirement.md` also holds `term_refs` and `terminology_review`. Meaning references need valid confirmation
+  and impact review; shared `term_question` answers stay in the term page. Unconfirmed meanings cannot be
+  converted to ASSUMED facts or non-blocking background to bypass readiness. Even a no-term assessment
+  must record its terminology review. Existing assessments must add this before their next planning run.
 - `schedule-expected.md` / `schedule-high.md`: generated algorithm outputs with input hashes.
 - `project-plan.md`: executive assessment; interpret scenario windows and confidence.
 - `progress.md`: actuals and remaining-effort range by WP, as-of date, external blockers.
@@ -86,5 +92,8 @@ It does not interpret images, evaluate the semantic quality of a mapping, or pro
 The repository-wide check also validates supported OKF metadata and the local data profile, including
 duplicate YAML keys and duplicate data blocks. It is not a full OKF conformance suite.
 Schedule hashes cover current validation inputs as well as calculation inputs.
+Terminology checks cover definition/context/asset hashes, shared-question links, scope, confirmation metadata
+and readiness. They do not discover every ambiguous phrase or authenticate a human. Definition content uses
+one marked term-definition block in the same Markdown note; structured values remain in project-data.
 
 [回到目錄](index.md)

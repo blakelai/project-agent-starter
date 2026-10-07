@@ -4,6 +4,7 @@ from pathlib import Path
 from datetime import timedelta, datetime, timezone
 from common import ROOT, load, day, index, topological, allocate, digest, requirement_dir
 from validate import validate
+from glossary import input_paths as terminology_inputs
 from okf import PROFILE, render_note, data_block, split_note, write_directory_index
 
 def save_report(target, result):
@@ -88,6 +89,7 @@ def main():
         paths['brd:'+doc['id']]=args.root/doc['path']
         for asset in doc['assets']:
             paths['asset:'+asset['path']]=args.root/asset['path']
+    paths.update(terminology_inputs(args.root, load(paths['requirement'])))
     calendar=load(paths['calendar']); start=day(args.start or calendar['start_date'])
     try:
         result=compute(load(paths['work_breakdown'])['work_packages'],load(paths['estimation'])['estimates'],

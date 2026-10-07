@@ -7,6 +7,11 @@ description: Analyze project requirement effects across repository wikis and ori
 
 # Impact Analysis
 
+Follow the requirement's term_refs and vault/docs/domain-terminology.md. Compare current implementation
+against the approved business meaning, recording differences rather than silently redefining a term.
+Keep evidence-backed current mappings separate from proposed mappings and human definition confirmation.
+On changed term revisions, reassess affected FR/AC/contracts and record open questions before estimation.
+
 
 1. Read requirement.md and evidence.md. Search relevant capability and lifecycle in OpenWiki first.
 2. Follow module, aggregate, API/event and consumer links across configured repository boundaries.
