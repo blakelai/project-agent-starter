@@ -15,7 +15,10 @@ Field names below refer to the data block unless explicitly called frontmatter.
 
 ## Authority and provenance
 
-- `vault/config/project.md`: routing and project settings.
+- `vault/config/project.md`: routing and project settings. `documentation_language` is the default language
+  for Agent-authored documents, using a language-code string such as `zh-TW`, `en` or `ja`.
+  A missing, null or blank value defaults to `zh-TW`; an explicit per-task language overrides it.
+  See the [OKF profile](okf-profile.md) for editing scope and machine-readable field preservation.
 - `vault/knowledge/sources.md`: shared source IDs, repo URLs and wiki roots; NOT an OpenWiki configuration file.
 - `.local/sources.md`: machine-specific checkout paths, ignored by Git.
 - `vault/planning/*`: owned planning facts with validity windows and explicit units.

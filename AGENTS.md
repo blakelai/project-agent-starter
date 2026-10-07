@@ -5,6 +5,21 @@ Read `vault/docs/okf-profile.md` before editing artifacts. Run commands from the
 This repository governs project assessment and management; source checkouts own implementation.
 Run as one agent. Do not create a multi-agent roster by default.
 
+## Document language
+
+Before generating documents, read `documentation_language` from the marked project-data block in
+`vault/config/project.md`. A language explicitly requested for the current task takes precedence over
+this project default; a missing, null or blank setting defaults to `zh-TW`. Do not change the project
+setting for a one-off override or infer output language from the user's conversational language,
+the template, this file, a Skill, or source material.
+Apply the resolved language to new or regenerated document titles, descriptions, headings, narrative,
+table labels and human-readable data values. Preserve schema keys, type/enum values, IDs, paths,
+URLs, commands, code, proper names and verbatim evidence; label any added translation separately.
+For local edits to an existing document, retain its language unless translation is requested;
+for whole-document regeneration, use the resolved language. Do not translate immutable baselines.
+This setting governs Agent-authored content; CLI template copying and fixed tool labels do not translate.
+Follow the detailed policy in `vault/docs/okf-profile.md`.
+
 ## Workflow
 
 1. Use `knowledge-bootstrap` for initial setup, source changes or evidence drift.

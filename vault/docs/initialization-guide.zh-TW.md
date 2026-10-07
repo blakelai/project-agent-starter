@@ -44,6 +44,8 @@ python -m unittest discover -s tests -v
 
 設定 vault/config/project.md：project_id、name、owner、timezone、knowledge_mode 與 workspace。
 空白欄位保持 null，直到取得實際值；不能把 placeholder owner 當成已確認的負責人。
+`documentation_language` 設定 Agent 的文件預設語言，骨架採 `zh-TW`；可改成 `en`、`ja` 等語言代碼。
+單次任務明確指定語言時優先採用。詳細行為見 [OKF 規約](okf-profile.md)。
 
 填寫 vault/knowledge/sources.md。每個 source 有穩定 ID、真實 remote URL、wiki root、entry page、
 capabilities 與 owner。此 manifest 是本骨架的 routing contract，不是 OpenWiki 原生設定格式。

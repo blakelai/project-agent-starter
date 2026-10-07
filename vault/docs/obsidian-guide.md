@@ -21,6 +21,7 @@ Obsidian 個人工作區與回收內容由 `.gitignore` 排除。Git 操作仍�
 | 要修改的內容 | 編輯位置 |
 |---|---|
 | 名稱、說明、知識頁狀態 | 頁首 Properties |
+| Agent 的文件預設語言 | 專案設定頁正文資料區塊的 `documentation_language` |
 | 背景、需求說明、架構選項、決策、週報 | Markdown 正文 |
 | WBS、工時、容量、人員、日曆、questions、AC | 正文「結構化資料」的 YAML 區塊 |
 | 排程結果 | 調整輸入後執行工具；在產生的 Markdown 表格查看 |

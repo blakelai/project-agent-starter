@@ -53,6 +53,12 @@ python scripts/schedule.py --requirement <REQ-ID> --scenario high
 
 將 `<REQ-ID>` 換成自己的需求 ID。產物位於 `vault/requirements/<REQ-ID>/`，Obsidian 可直接開啟。
 
+## 文件預設語言
+
+在 [專案設定](vault/config/project.md) 的結構化資料區塊設定 `documentation_language: zh-TW`。
+可改成 `en`、`ja` 或其他明確語言代碼，讓 Agent 依此撰寫新文件；單次任務明確指定語言時優先採用。
+規則涵蓋文件敘述，保留 schema 欄位、ID、程式碼與原文引用。CLI 的固定文字維持內建語言。
+
 ## 文件與目錄
 
 - [初始化指南](vault/docs/initialization-guide.zh-TW.md)：完整中文導入流程。
