@@ -1,0 +1,4 @@
+interface:
+  display_name: "Delivery Tracking"
+  short_description: "Track handoffs, progress, acceptance, and closure evidence"
+  default_prompt: "Use $delivery-tracking to handle the current project phase using verified inputs and the project workflow."

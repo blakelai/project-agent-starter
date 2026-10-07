@@ -4,14 +4,19 @@ from datetime import date, timedelta
 import hashlib
 import math
 import yaml
+from okf import load_data, write_data, parse_yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 
 def load(path):
+    if Path(path).suffix == '.md':
+        return load_data(path)
     with Path(path).open(encoding='utf-8') as stream:
-        return yaml.safe_load(stream)
+        return parse_yaml(stream.read())
 
 def write(path, data):
+    if Path(path).suffix == '.md':
+        return write_data(path, data)
     Path(path).write_text(yaml.safe_dump(data, allow_unicode=True, sort_keys=False), encoding='utf-8')
 
 def day(value):
@@ -24,7 +29,7 @@ def requirement_dir(root, identifier):
     import re
     if not re.fullmatch(r'REQ-[A-Za-z0-9][A-Za-z0-9-]{0,63}', identifier):
         raise ValueError('Requirement ID must match REQ-<letters/digits/hyphens>')
-    return Path(root) / 'requirements' / identifier
+    return Path(root) / 'vault' / 'requirements' / identifier
 
 def index(items, label):
     result = {}

@@ -1,9 +1,0 @@
-schema_version: 1
-status: draft
-ready_for_planning: false
-reviewed_by: null
-reviewed_at: null
-assumptions: []
-blockers:
-- Requirement scope and acceptance are not clarified.
-owner_confirmation: null

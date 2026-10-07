@@ -1,0 +1,4 @@
+interface:
+  display_name: "Solution Assessment"
+  short_description: "Assess impacts, compare options, and record design decisions"
+  default_prompt: "Use $solution-assessment to handle the current project phase using verified inputs and the project workflow."

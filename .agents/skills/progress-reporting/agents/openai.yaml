@@ -1,4 +1,0 @@
-interface:
-  display_name: "Progress Reporting"
-  short_description: "Run the progress reporting workflow"
-  default_prompt: "Use $progress-reporting to complete the applicable project workflow."

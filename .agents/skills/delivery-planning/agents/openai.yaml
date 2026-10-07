@@ -1,0 +1,4 @@
+interface:
+  display_name: "Delivery Planning"
+  short_description: "Plan work, estimates, shared capacity, and remaining effort"
+  default_prompt: "Use $delivery-planning to handle the current project phase using verified inputs and the project workflow."

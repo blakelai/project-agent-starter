@@ -2,18 +2,46 @@
 import argparse
 from pathlib import Path
 from common import ROOT, load, day, number, requirement_dir, index, topological
+from okf import check_note
+from brd import read_brd, validate_brd_references
+from glossary import validate_catalog, validate_references
+from workflow import CORE, PHASES, STATUS_PHASE
+from delivery import progress_errors
 
-ARTIFACTS = ['requirement.yaml','evidence.yaml','work-breakdown.yaml','estimation.yaml',
-             'risks.yaml','traceability.yaml','assessment.yaml']
+ARTIFACTS = ['requirement.md','evidence.md','work-breakdown.md','estimation.md',
+             'risks.md','traceability.md','assessment.md']
 
-def validate(root, directory, planning=False):
+def validate(root, directory, planning=False, stage=None):
     errors = []
     def require(condition, message):
         if not condition:
             errors.append(message)
     data = {}
+    try:
+        initial = load(directory/'requirement.md')
+        phase = STATUS_PHASE[initial['status']]
+        if stage is not None:
+            if stage not in PHASES: raise ValueError('Invalid validation stage')
+            phase = PHASES[max(PHASES.index(phase), PHASES.index(stage))]
+        if planning:
+            phase = PHASES[max(PHASES.index(phase), PHASES.index('planning'))]
+        assessment = load(directory/'assessment.md')
+        if assessment.get('ready_for_planning'):
+            phase = PHASES[max(PHASES.index(phase), PHASES.index('planning'))]
+    except (OSError, KeyError, ValueError, TypeError) as exc:
+        return [f'Malformed workflow state: {exc}']
+    full_plan = PHASES.index(phase) >= PHASES.index('planning')
+    clarified = phase != 'intake'
+    required = set(CORE) | (set(ARTIFACTS) if full_plan else set())
+    defaults = {'work-breakdown.md': {'schema_version':1,'work_packages':[]},
+                'estimation.md': {'schema_version':1,'estimates':[]},
+                'risks.md': {'schema_version':1,'risks':[]}}
     for filename in ARTIFACTS:
+        if filename not in required and not (directory/filename).exists():
+            data[filename] = defaults[filename]
+            continue
         try:
+            check_note(directory/filename, root/'vault')
             data[filename] = load(directory/filename)
             require(isinstance(data[filename],dict), f'{filename}: expected mapping')
             require(data[filename].get('schema_version') == 1, f'{filename}: unsupported schema')
@@ -22,32 +50,35 @@ def validate(root, directory, planning=False):
     if errors:
         return errors
     try:
-        req=data['requirement.yaml']; assess=data['assessment.yaml']
+        req=data['requirement.md']; assess=data['assessment.md']
         require(req['id'] == directory.name,'Requirement ID must match directory')
-        require(req['status'] in ['intake','clarified','assessed','baseline','closed'],'Invalid requirement status')
+        require(req['status'] in list(STATUS_PHASE),'Invalid requirement status')
         for field in ['goal','actors','scope','non_goals','constraints','facts','questions','functional_requirements','acceptance_criteria']:
             require(field in req, f'Requirement missing {field}')
-        sources=index(load(root/'knowledge/sources.yaml')['sources'],'sources')
-        evidence=index(data['evidence.yaml']['evidence'],'evidence')
+        sources=index(load(root/'vault/knowledge/sources.md')['sources'],'sources')
+        evidence=index(data['evidence.md']['evidence'],'evidence')
         ac=index(req['acceptance_criteria'],'acceptance criteria')
         fr=index(req['functional_requirements'],'functional requirements')
         questions=index(req['questions'],'questions')
-        packages=data['work-breakdown.yaml']['work_packages']; wp=index(packages,'work packages')
-        estimates=index(data['estimation.yaml']['estimates'],'estimates')
-        risks=index(data['risks.yaml']['risks'],'risks')
-        historical=index(load(root/'planning/historical-delivery.yaml')['samples'],'historical samples')
-        types=load(root/'planning/work-types.yaml')['work_types']
-        people_data=load(root/'planning/people.yaml')
+        errors.extend(validate_brd_references(root, req, data['traceability.md'], questions,
+                                             clarified))
+        errors.extend(validate_references(root, req, clarified))
+        packages=data['work-breakdown.md']['work_packages']; wp=index(packages,'work packages')
+        estimates=index(data['estimation.md']['estimates'],'estimates')
+        risks=index(data['risks.md']['risks'],'risks')
+        historical=index(load(root/'vault/planning/historical-delivery.md')['samples'],'historical samples')
+        types=load(root/'vault/planning/work-types.md')['work_types']
+        people_data=load(root/'vault/planning/people.md')
         people=index(people_data['people'],'people')
-        capacity=load(root/'planning/capacity.yaml'); calendar=load(root/'planning/calendar.yaml')
+        capacity=load(root/'vault/planning/capacity.md'); calendar=load(root/'vault/planning/calendar.md')
         if planning and not req.get('synthetic',False):
-            project=load(root/'config/project.yaml')
+            project=load(root/'vault/config/project.md')
             require(bool(project.get('owner')) and 'REPLACE_' not in project['owner'],'Real planning needs a configured project owner')
             require(not any(x.get('synthetic',False) for x in [people_data,capacity,calendar]),'Real planning cannot use synthetic people/capacity/calendar')
             require(not any(e.get('synthetic',False) for e in evidence.values()),'Real planning cannot use synthetic evidence')
         require(isinstance(assess['ready_for_planning'],bool),'ready_for_planning must be boolean')
         require(assess['status'] in ['draft','baseline'],'Invalid assessment status')
-        active=req['status'] != 'intake' or planning or assess['ready_for_planning']
+        active=full_plan
         blocked=[]
         for q in questions.values():
             require(isinstance(q['blocking'],bool),f'{q["id"]}: blocking must be boolean')
@@ -55,12 +86,25 @@ def validate(root, directory, planning=False):
             require(bool(q.get('owner')),f'{q["id"]}: question needs owner')
             if q['status']=='resolved':
                 require(bool(q.get('answer')) and bool(q.get('source')),f'{q["id"]}: resolution requires answer/source')
-            if q['blocking'] and q['status']=='open': blocked.append(q['id'])
+            gates=q.get('blocks', PHASES[1:])
+            require(isinstance(gates,list) and bool(gates) and set(gates)<=set(PHASES[1:]),f'{q["id"]}: invalid blocks stages')
+            if q['blocking'] and q['status']=='open' and any(PHASES.index(g)<=PHASES.index(phase) for g in gates):
+                blocked.append(q['id'])
+            if q.get('affected_work'):
+                require(set(q['affected_work'])<=wp.keys(),f'{q["id"]}: unknown affected work')
         for e in evidence.values():
             require(e['source_id'] in sources,f'{e["id"]}: unknown source')
             for field in ['path','source_revision','observed_at','claim']:
                 require(bool(e.get(field)),f'{e["id"]}: missing {field}')
             require(e['state'] in ['CONFIRMED','ASSUMED','UNKNOWN'],f'{e["id"]}: invalid evidence state')
+            if sources.get(e['source_id'], {}).get('kind') == 'brd':
+                docs=index(req.get('source_documents', []), 'source_documents')
+                doc=docs.get(e['source_id'])
+                require(doc is not None, f'{e["id"]}: BRD evidence needs a captured source document')
+                if doc:
+                    require(e['source_revision'] == doc['source_revision'], f'{e["id"]}: stale BRD evidence revision')
+                    expected_paths={doc['path']} | {doc['path']+'#'+item for item in doc['item_ids']} | {a['path'] for a in doc['assets']}
+                    require(e['path'] in expected_paths, f'{e["id"]}: invalid BRD evidence path or item')
         for fact in req['facts']:
             require(fact['state'] in ['CONFIRMED','ASSUMED','UNKNOWN'],'Invalid fact state')
             require(bool(fact.get('evidence_ids')) or bool(fact.get('owner')),'Fact needs evidence or assumption owner')
@@ -69,8 +113,13 @@ def validate(root, directory, planning=False):
             require(bool(item.get('statement')),f'{item["id"]}: missing acceptance statement')
             require(bool(item.get('requirement_ids')),f'{item["id"]}: no FR link')
             require(set(item.get('requirement_ids',[])) <= fr.keys(),f'{item["id"]}: unknown FR')
+        if clarified:
+            require(bool(fr) and bool(ac),'Clarified requirement needs FR and AC')
+            require(bool(req.get('scope')) and bool(req.get('actors')) and req.get('goal') not in [None,'','TO_CLARIFY'],
+                    'Clarified requirement needs goal, actors and scope')
+            require(not blocked,f'Open blocking questions for {phase}: {blocked}')
         if active:
-            require(bool(ac) and bool(fr) and bool(wp),'Clarified assessment needs FR, AC and work packages')
+            require(bool(ac) and bool(fr) and bool(wp),'Planning assessment needs FR, AC and work packages')
             require(set(estimates)==set(wp),'Estimates must cover exactly the work package IDs')
         topological(packages)
         for p in wp.values():
@@ -88,7 +137,7 @@ def validate(root, directory, planning=False):
                 require(owner in people,f'{identifier}: unknown person')
                 if owner in people:
                     require(set(p['skills']) <= set(people[owner]['skills']),f'{identifier}: person lacks required skills')
-            if planning or assess['ready_for_planning']:
+            if full_plan:
                 require(owner in capacity['people'],f'{identifier}: no capacity for assignment')
         for e in estimates.values():
             identifier=e['id']; values=e['effort_pd']
@@ -102,7 +151,7 @@ def validate(root, directory, planning=False):
             refs=e['historical_refs']
             require(set(refs)<=historical.keys(),f'{identifier}: unknown historical reference')
             if e['basis']=='historical-range':
-                minimum=load(root/'planning/estimation-rules.yaml')['minimum_analogues']
+                minimum=load(root/'vault/planning/estimation-rules.md')['minimum_analogues']
                 require(len(set(refs))>=minimum,f'{identifier}: historical basis needs at least {minimum} distinct references')
             if not req.get('synthetic',False):
                 require(not any(historical[h].get('synthetic',False) for h in refs if h in historical),f'{identifier}: synthetic history cannot estimate a real project')
@@ -111,13 +160,15 @@ def validate(root, directory, planning=False):
         for r in risks.values():
             require(r['probability'] in ['low','medium','high'] and r['impact'] in ['low','medium','high'],f'{r["id"]}: invalid risk rating')
             require(bool(r.get('owner')) and bool(r.get('trigger')) and bool(r.get('mitigation')),f'{r["id"]}: risk owner/trigger/mitigation missing')
-            require(bool(r['affected_work']) and set(r['affected_work'])<=wp.keys(),f'{r["id"]}: invalid affected work')
+            affected=r.get('affected_work',[]); affected_fr=r.get('affected_requirements',[])
+            require(set(affected)<=wp.keys() and set(affected_fr)<=fr.keys(),f'{r["id"]}: invalid risk references')
+            require(bool(affected) if full_plan else bool(affected or affected_fr),f'{r["id"]}: risk needs affected work or early FR reference')
             require(r['treatment'] in ['effort-included','calendar-gate','monitor-only'],f'{r["id"]}: invalid risk treatment')
             if r['treatment']=='effort-included':
                 require(any(r['id'] in e.get('risk_ids',[]) for e in estimates.values()),f'{r["id"]}: included risk has no estimate mapping')
             if r['treatment']=='calendar-gate':
                 require(any(wp[w].get('not_before') for w in r['affected_work'] if w in wp),f'{r["id"]}: calendar risk has no not_before gate')
-        links=data['traceability.yaml']['links']; coverage=set()
+        links=data['traceability.md']['links']; coverage=set()
         for link in links:
             aid=link['acceptance_id']; coverage.add(aid)
             require(aid in ac,'Unknown traceability AC')
@@ -138,7 +189,11 @@ def validate(root, directory, planning=False):
             require(person in people,f'Capacity refers to unknown person {person}')
             require(number(c['fraction']) and 0<c['fraction']<=1,f'{person}: capacity fraction must be in (0,1]')
             for value in c.get('leave',[]): day(value)
-        scheduling = planning or assess['ready_for_planning']
+        if phase in {'delivery','closure'}:
+            progress_path=directory/'progress.md'
+            check_note(progress_path, root/'vault')
+            errors.extend(progress_errors(load(progress_path), wp, links, closing=phase=='closure'))
+        scheduling = full_plan
         if scheduling:
             require(bool(capacity.get('valid_from')) and bool(capacity.get('valid_until')),'Scheduling requires capacity validity dates')
             require(bool(calendar.get('start_date')),'Scheduling requires a start_date')
@@ -148,7 +203,7 @@ def validate(root, directory, planning=False):
         require(isinstance(calendar['work_weekdays'],list) and all(type(x) is int and 0<=x<=6 for x in calendar['work_weekdays']),'Invalid work_weekdays')
         for value in calendar.get('holidays',[]): day(value)
         if calendar.get('start_date'): day(calendar['start_date'])
-    except (KeyError,TypeError,ValueError,AttributeError) as exc:
+    except (OSError,KeyError,TypeError,ValueError,AttributeError) as exc:
         errors.append(f'Malformed artifact: {exc}')
     return errors
 
@@ -157,19 +212,32 @@ def main():
     parser.add_argument('--root',type=Path,default=ROOT)
     group=parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--all',action='store_true'); group.add_argument('--requirement')
-    parser.add_argument('--planning',action='store_true')
+    parser.add_argument('--planning',action='store_true',help='Require scheduling readiness (compatibility flag)')
+    parser.add_argument('--stage',choices=PHASES,help='Validate at least this phase; never downgrade current state')
     args=parser.parse_args()
-    dirs=sorted((args.root/'requirements').glob('REQ-*')) if args.all else [requirement_dir(args.root,args.requirement)]
+    dirs=sorted((args.root/'vault/requirements').glob('REQ-*')) if args.all else [requirement_dir(args.root,args.requirement)]
     failures=[]
-    # Parse every YAML as a basic repo-wide syntax check, including Skill metadata.
-    for path in args.root.rglob('*.yaml'):
-        if '.venv' in path.parts or '.git' in path.parts: continue
+    failures.extend(validate_catalog(args.root))
+    bundle = args.root/'vault'
+    if not (bundle/'index.md').is_file():
+        failures.append('Missing vault/index.md OKF entry point')
+    for path in bundle.rglob('*.md'):
+        if any(part.startswith('.') for part in path.relative_to(bundle).parts): continue
+        try: check_note(path, bundle)
+        except Exception as exc: failures.append(f'{path.relative_to(args.root)}: {exc}')
+    for directory in (bundle/'intake').glob('BRD-*'):
+        if not directory.is_dir(): continue
+        try: read_brd(args.root, (directory/'brd.md').resolve(), allow_empty=True)
+        except Exception as exc: failures.append(f'{directory.name}: {exc}')
+    # Native host / pipeline settings keep their required YAML format.
+    for path in sorted(set(args.root.rglob('*.yaml')) | set(args.root.rglob('*.yml'))):
+        if any(part in {'.venv', '.git', '.local', '.obsidian', '.trash'} for part in path.parts): continue
         try: load(path)
         except Exception as exc: failures.append(f'{path.relative_to(args.root)}: {exc}')
     for directory in dirs:
-        failures += [f'{directory.name}: {e}' for e in validate(args.root,directory,args.planning)]
+        failures += [f'{directory.name}: {e}' for e in validate(args.root,directory,args.planning,args.stage)]
     if failures:
         print('\n'.join(f'ERROR {e}' for e in failures)); return 1
-    print(f'OK: YAML syntax and {len(dirs)} requirement artifact sets'); return 0
+    print(f'OK: OKF project profile, native YAML syntax and {len(dirs)} requirement artifact sets'); return 0
 if __name__=='__main__':
     raise SystemExit(main())
